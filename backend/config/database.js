@@ -7,10 +7,8 @@ const connectDatabase = async () => {
   try {
     await mongoose.connect(URI, {
       useNewUrlParser: true,
-      useCreateIndex: true,
-      useFindAndModify: false,
       useUnifiedTopology: true,
-      dbName: "SIH22",
+      dbName: "ExpediteCluster",
     });
     console.log("Connected to Database !");
   } catch (error) {
