@@ -5,7 +5,16 @@ const { urlencoded } = require("express");
 
 const PORT = process.env.PORT || 5000;
 
-const routes = ["member"];
+const routes = [
+  "auth",
+  "member",
+  "committee",
+  "venue",
+  "event",
+  "cell",
+  "canteen",
+  "order",
+];
 
 const app = express();
 
