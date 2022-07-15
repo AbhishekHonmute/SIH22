@@ -57,6 +57,54 @@ router.route("/add_canteen").post(async (req, res) => {
   }
 });
 
+router.route("/update_canteen").post(async (req, res) => {
+  try {
+    const {
+      canteen_id,
+      name,
+      email,
+      password,
+      rating,
+      menu,
+      serviceable_to,
+      phone_no,
+    } = req.body;
+    console.log(
+      canteen_id,
+      name,
+      email,
+      password,
+      rating,
+      menu,
+      serviceable_to,
+      phone_no
+    );
+
+    const old_query = { canteen_id: canteen_id };
+    const new_data = {
+      canteen_id,
+      name,
+      email,
+      password,
+      rating,
+      menu,
+      serviceable_to,
+      phone_no,
+    };
+    Canteen.updateOne(old_query, new_data, function (err, res) {
+      if (err) throw err;
+      console.log("1 document updated");
+    });
+  } catch (error) {
+    res.status(400).json({
+      result: "Cannot Update Canteen",
+    });
+  }
+  res.status(200).json({
+    result: "Canteen Updated",
+  });
+});
+
 router.route("/get_canteen/:canteen_id").get(async (req, res) => {
   try {
     const canteen_id = req.params.canteen_id;

@@ -76,6 +76,72 @@ router.route("/add_venue").post(async (req, res) => {
   }
 });
 
+router.route("/update_venue").post(async (req, res) => {
+  try {
+    const {
+      venue_id,
+      name,
+      rent,
+      capacity,
+      ac,
+      projector,
+      internet,
+      computer,
+      power_backup,
+      email,
+      password,
+      rating,
+      address,
+      slots_booked,
+    } = req.body;
+    console.log(
+      venue_id,
+      name,
+      rent,
+      capacity,
+      ac,
+      projector,
+      internet,
+      computer,
+      power_backup,
+      email,
+      password,
+      rating,
+      address,
+      slots_booked
+    );
+
+    const old_query = { venue_id: venue_id };
+    const new_data = {
+      venue_id,
+      name,
+      rent,
+      capacity,
+      ac,
+      projector,
+      internet,
+      computer,
+      power_backup,
+      email,
+      password,
+      rating,
+      address,
+      slots_booked,
+    };
+    Venue.updateOne(old_query, new_data, function (err, res) {
+      if (err) throw err;
+      console.log("1 document updated");
+    });
+  } catch (error) {
+    res.status(400).json({
+      result: "Cannot Update Venue",
+    });
+  }
+  res.status(200).json({
+    result: "Venue Updated",
+  });
+});
+
 router.route("/get_venue/:venue_id").get(async (req, res) => {
   try {
     const venue_id = req.params.venue_id;

@@ -47,6 +47,44 @@ router.route("/add_order").post(async (req, res) => {
   }
 });
 
+router.route("/update_order").post(async (req, res) => {
+  try {
+    const { order_id, canteen_id, event_id, venue_id, amount, status, items } =
+      req.body;
+    console.log(
+      order_id,
+      canteen_id,
+      event_id,
+      venue_id,
+      amount,
+      status,
+      items
+    );
+
+    const old_query = { order_id: order_id };
+    const new_data = {
+      order_id,
+      canteen_id,
+      event_id,
+      venue_id,
+      amount,
+      status,
+      items,
+    };
+    Order.updateOne(old_query, new_data, function (err, res) {
+      if (err) throw err;
+      console.log("1 document updated");
+    });
+  } catch (error) {
+    res.status(400).json({
+      result: "Cannot Update Order",
+    });
+  }
+  res.status(200).json({
+    result: "Order Updated",
+  });
+});
+
 router.route("/get_order/:order_id").get(async (req, res) => {
   try {
     const order_id = req.params.order_id;

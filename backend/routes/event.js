@@ -85,6 +85,81 @@ router.route("/add_event").post(async (req, res) => {
   }
 });
 
+router.route("/update_event").post(async (req, res) => {
+  try {
+    const {
+      event_id,
+      name,
+      event_creator_id,
+      description,
+      approval,
+      start_time,
+      end_time,
+      expected_attendance,
+      actual_attendance,
+      event_summary,
+      available_budget,
+      venue_id,
+      venue_status,
+      order_id,
+      order_status,
+      members_list,
+      spendings,
+    } = req.body;
+    console.log(
+      event_id,
+      name,
+      event_creator_id,
+      description,
+      approval,
+      start_time,
+      end_time,
+      expected_attendance,
+      actual_attendance,
+      event_summary,
+      available_budget,
+      venue_id,
+      venue_status,
+      order_id,
+      order_status,
+      members_list,
+      spendings
+    );
+
+    const old_query = { event_id: event_id };
+    const new_data = {
+      event_id,
+      name,
+      event_creator_id,
+      description,
+      approval,
+      start_time,
+      end_time,
+      expected_attendance,
+      actual_attendance,
+      event_summary,
+      available_budget,
+      venue_id,
+      venue_status,
+      order_id,
+      order_status,
+      members_list,
+      spendings,
+    };
+    Event.updateOne(old_query, new_data, function (err, res) {
+      if (err) throw err;
+      console.log("1 document updated");
+    });
+  } catch (error) {
+    res.status(400).json({
+      result: "Cannot Update Event",
+    });
+  }
+  res.status(200).json({
+    result: "Event Updated",
+  });
+});
+
 router.route("/get_event/:event_id").get(async (req, res) => {
   try {
     const event_id = req.params.event_id;

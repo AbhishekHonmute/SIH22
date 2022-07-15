@@ -34,6 +34,30 @@ router.route("/add_cell").post(async (req, res) => {
   }
 });
 
+router.route("/update_cell").post(async (req, res) => {
+  try {
+    const { cell_id, name } = req.body;
+    console.log(cell_id, name);
+
+    const old_query = { cell_id: cell_id };
+    const new_data = {
+      cell_id,
+      name,
+    };
+    Cell.updateOne(old_query, new_data, function (err, res) {
+      if (err) throw err;
+      console.log("1 document updated");
+    });
+  } catch (error) {
+    res.status(400).json({
+      result: "Cannot Update Cell",
+    });
+  }
+  res.status(200).json({
+    result: "Cell Updated",
+  });
+});
+
 router.route("/get_cell/:cell_id").get(async (req, res) => {
   try {
     const cell_id = req.params.cell_id;

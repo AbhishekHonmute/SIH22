@@ -60,6 +60,31 @@ router.route("/signup").post(async (req, res) => {
   }
 });
 
+router.route("/update_committee").post(async (req, res) => {
+  try {
+    const { committee_id, name, members } = req.body;
+    console.log(committee_id, name, members);
+
+    const old_query = { committee_id: committee_id };
+    const new_data = {
+      committee_id,
+      name,
+      members,
+    };
+    Committee.updateOne(old_query, new_data, function (err, res) {
+      if (err) throw err;
+      console.log("1 document updated");
+    });
+  } catch (error) {
+    res.status(400).json({
+      result: "Cannot Update Committee",
+    });
+  }
+  res.status(200).json({
+    result: "Committee Updated",
+  });
+});
+
 router.route("/").get(async (req, res) => {
   try {
     res.status(200).send("Hello !");
