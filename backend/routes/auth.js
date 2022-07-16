@@ -1,5 +1,7 @@
 const router = require("express").Router();
 const Member = require("../models/Member");
+const Committee = require("../models/Committee");
+const Event = require("../models/Event");
 const { compareHashedPassword, returnHashedPassowrd } = require("../util");
 
 router.route("/signup").post(async (req, res) => {
@@ -60,29 +62,84 @@ router.route("/signup").post(async (req, res) => {
   }
 });
 
-router.route("/update_committee").post(async (req, res) => {
+router.route("/update_member").post(async (req, res) => {
   try {
-    const { committee_id, name, members } = req.body;
-    console.log(committee_id, name, members);
+    const {
+      member_id,
+      first_name,
+      last_name,
+      password,
+      permission,
+      email,
+      cell_id,
+      cell_designation,
+      phone_no,
+    } = req.body;
+    console.log(
+      member_id,
+      first_name,
+      last_name,
+      password,
+      permission,
+      email,
+      cell_id,
+      cell_designation,
+      phone_no
+    );
 
-    const old_query = { committee_id: committee_id };
-    const new_data = {
-      committee_id,
-      name,
-      members,
-    };
-    Committee.updateOne(old_query, new_data, function (err, res) {
-      if (err) throw err;
-      console.log("1 document updated");
-    });
+    const old_query = { member_id: member_id };
+
+    returnHashedPassowrd(password)
+      .then((hashedPassword) => {
+        const new_data = {
+          member_id,
+          first_name,
+          last_name,
+          permission,
+          email,
+          cell_id,
+          cell_designation,
+          phone_no,
+          password: hashedPassword,
+        };
+        console.log(new_data);
+        Member.updateOne(old_query, new_data, function (err, res) {
+          if (err) throw err;
+          console.log("1 document updated");
+        });
+      })
+      .catch((error) => console.log(error.message));
   } catch (error) {
     res.status(400).json({
-      result: "Cannot Update Committee",
+      result: "Cannot Update Member",
     });
   }
   res.status(200).json({
-    result: "Committee Updated",
+    result: "Member Updated",
   });
+});
+
+router.route("/delete_member/:member_id").delete(async (req, res) => {
+  try {
+    const member_id = req.params.member_id;
+    console.log(member_id);
+    await Member.deleteOne({ member_id });
+    const old_query = {};
+    const new_query = { $pull: { members: { member_id: member_id } } };
+    await Committee.updateMany(old_query, new_query);
+
+    const old_query1 = {};
+    const new_query1 = { $pull: { members_list: { member_id: member_id } } };
+    await Event.updateMany(old_query1, new_query1);
+    console.log("No error here bro");
+    res.status(200).json({
+      result: "Member deleted",
+    });
+  } catch (error) {
+    res.status(400).json({
+      result: "Failed to delete member",
+    });
+  }
 });
 
 router.route("/").get(async (req, res) => {

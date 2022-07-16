@@ -59,6 +59,22 @@ router.route("/update_committee").post(async (req, res) => {
   });
 });
 
+router.route("/delete_committee/:committee_id").delete(async (req, res) => {
+  try {
+    const committee_id = req.params.committee_id;
+    console.log(committee_id);
+    await Committee.deleteOne({ committee_id });
+    // await Message.deleteMany({ committee_id });
+    res.status(200).json({
+      result: "Committee deleted",
+    });
+  } catch (error) {
+    res.status(400).json({
+      result: "Failed to delete committee",
+    });
+  }
+});
+
 router.route("/get_committee/:committee_id").get(async (req, res) => {
   try {
     const committee_id = req.params.committee_id;
@@ -75,3 +91,5 @@ router.route("/get_committee/:committee_id").get(async (req, res) => {
 });
 
 module.exports = router;
+
+// "members":[{"member_id": "AH01", "designation": "Head"}]
