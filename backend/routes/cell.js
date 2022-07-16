@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const Cell = require("../models/Cell");
+const Member = require("../models/Member");
 
 router.route("/add_cell").post(async (req, res) => {
   try {
@@ -56,6 +57,25 @@ router.route("/update_cell").post(async (req, res) => {
   res.status(200).json({
     result: "Cell Updated",
   });
+});
+
+router.route("/delete_cell/:cell_id").delete(async (req, res) => {
+  try {
+    const cell_id = req.params.cell_id;
+    console.log(cell_id);
+    await Cell.deleteOne({ cell_id });
+    const old_query = { cell_id: cell_id };
+    const new_query = { $set: { cell_id: "0" } };
+    await Member.updateMany(old_query, new_query);
+    console.log("No error here bro");
+    res.status(200).json({
+      result: "Cell deleted",
+    });
+  } catch (error) {
+    res.status(400).json({
+      result: "Failed to delete cell",
+    });
+  }
 });
 
 router.route("/get_cell/:cell_id").get(async (req, res) => {

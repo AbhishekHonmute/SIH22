@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const Canteen = require("../models/Canteen");
+const Order = require("../models/Order");
 
 router.route("/add_canteen").post(async (req, res) => {
   try {
@@ -105,6 +106,23 @@ router.route("/update_canteen").post(async (req, res) => {
   });
 });
 
+router.route("/delete_canteen/:canteen_id").delete(async (req, res) => {
+  try {
+    const canteen_id = req.params.canteen_id;
+    console.log(canteen_id);
+    await Canteen.deleteOne({ canteen_id });
+    await Order.deleteMany({ canteen_id });
+    console.log("No error here bro");
+    res.status(200).json({
+      result: "Canteen deleted",
+    });
+  } catch (error) {
+    res.status(400).json({
+      result: "Failed to delete canteen",
+    });
+  }
+});
+
 router.route("/get_canteen/:canteen_id").get(async (req, res) => {
   try {
     const canteen_id = req.params.canteen_id;
@@ -121,3 +139,7 @@ router.route("/get_canteen/:canteen_id").get(async (req, res) => {
 });
 
 module.exports = router;
+
+// "menu": [{"item_id": "C01M1", "item_name": "roti", "item_price": 10, "is_veg": 1}, {"item_id": "C01M2", "item_name": "samosa", "item_price": 20, "is_veg": 1}, {"item_id": "C01M3", "item_name": "rice", "item_price": 100, "is_veg": 1}],
+
+// "serviceable_to":[{"venue_id": "H01"}],

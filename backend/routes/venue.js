@@ -1,5 +1,7 @@
 const router = require("express").Router();
 const Venue = require("../models/Venue");
+const Event = require("../models/Event");
+const Order = require("../models/Order");
 
 router.route("/add_venue").post(async (req, res) => {
   try {
@@ -142,6 +144,24 @@ router.route("/update_venue").post(async (req, res) => {
   });
 });
 
+router.route("/delete_venue/:venue_id").delete(async (req, res) => {
+  try {
+    const venue_id = req.params.venue_id;
+    console.log(venue_id);
+    await Venue.deleteOne({ venue_id });
+    await Event.deleteMany({ venue_id });
+    await Order.deleteMany({ venue_id });
+    console.log("No error here bro");
+    res.status(200).json({
+      result: "Venue deleted",
+    });
+  } catch (error) {
+    res.status(400).json({
+      result: "Failed to delete venue",
+    });
+  }
+});
+
 router.route("/get_venue/:venue_id").get(async (req, res) => {
   try {
     const venue_id = req.params.venue_id;
@@ -158,3 +178,5 @@ router.route("/get_venue/:venue_id").get(async (req, res) => {
 });
 
 module.exports = router;
+
+// "slots_booked":[{"event_id": "CN01", "start_time": {"$date":{"$numberLong":"-3722524108000"}}, "end_time": {"$date":{"$numberLong":"-3722437708000"}}}, {"event_id": "0", "start_time": {"$date":{"$numberLong":"-3752524108000"}}, "end_time": {"$date":{"$numberLong":"-3762437708000"}}}]
