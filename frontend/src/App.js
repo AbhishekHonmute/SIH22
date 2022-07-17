@@ -14,6 +14,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/add_venue" element={<Venue />} />
+        <Route path="/update_venue/:venue_id" element={<Venue isUpdate={true}/>} />
       </Routes>
     </BrowserRouter>
   );

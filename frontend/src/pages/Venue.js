@@ -5,6 +5,11 @@ import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 import Checkbox from "@mui/material/Checkbox";
+import Stack from '@mui/material/Stack';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import FormControlLabel from "@mui/material/FormControlLabel";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
@@ -12,8 +17,11 @@ import Container from "@mui/material/Container";
 import Alert from "@mui/material/Alert";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import axios from "axios";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
+import Paper from '@mui/material/Paper';
+import DeleteIcon from '@mui/icons-material/Delete';
 
-const backendURL = "http://localhost:5000/add_venue";
+const backendURL = "http://localhost:5000/api/venue";
 
 const theme = createTheme();
 
@@ -29,82 +37,187 @@ class Venue extends Component {
       password: "",
       rating: "",
       address: "",
-      slots_booked: "",
+      slots_booked: [], //4 : Date : startTime EndTime EventID
       
       ac: false,
       projector: false,
       internet: false,
       computer: false,
       power_backup: false,
+
+      iserror: false,
+      
+      eventDate: new Date(),
+      eventStartTime: new Date(),
+      eventEndTime: new Date(),
     };
   }
+  componentDidMount = () => {
+    const isUpdate = this.props.isUpdate;
+    if(isUpdate) {
+      const venue_id = window.location.pathname.split("/")[2];
+      try{
+        axios.get(`${backendURL}/get_venue/${venue_id}`)
+        .then(res => {
+          const data = res.data.result;
+          this.setState({
+            venue_id: data.venue_id,
+            name: data.name,
+            rent: data.rent,
+            capacity: data.capacity,
+            ac: data.ac,
+            projector: data.projector,
+            internet: data.internet,
+            computer: data.computer,
+            power_backup: data.power_backup,
+            email: data.email,
+            password: data.password,
+            address: data.address,
+            slots_booked: data.slots_booked,
+          });
+        });
+      }
+      catch (error) {
+        console.log("COMPONENT UPDATE ERROR" + error);
+        this.setState({iserror: true});
+      }
+    }
+  }
 
-  render() {
-    const handleSubmit = async (event) => {
-      event.preventDefault();
-      const data = {
-        venue_id: this.state.venue_id,
-        name: this.state.name,
-        rent: this.state.rent,
-        capacity: this.state.capacity,
-        ac: this.state.ac,
-        projector: this.state.projector,
-        internet: this.state.internet,
-        computer: this.state.computer,
-        power_backup: this.state.power_backup,
-        email: this.state.email,
-        password: this.state.password,
-        address: this.state.address,
-        slots: this.state.slots,
-        iserror: false,
-      };
-      console.log({
-        
-        venue_id: data.state.venue_id,
-        name: data.state.name,
-        rent: data.state.rent,
-        capacity: data.state.capacity,
-        ac: data.state.ac,
-        projector: data.state.projector,
-        internet: data.state.internet,
-        computer: data.state.computer,
-        power_backup: data.state.power_backup,
-        email: data.state.email,
-        password: data.state.password,
-        address: data.state.address,
-        slots: data.state.slots,
-      });
+  validateForm = () => {
+    console.log("Validating");
+    this.setState({iserror: false})
+  }
 
-      try {
-        const response = await axios.post(`${backendURL}/add_venue`, data);
+  handleSubmit = async (event) => {
+    this.validateForm();
+    event.preventDefault();
+    const isUpdate = this.props.isUpdate;
+    const data = {
+      venue_id: this.state.venue_id,
+      name: this.state.name,
+      rent: this.state.rent,
+      capacity: this.state.capacity,
+      ac: this.state.ac,
+      projector: this.state.projector,
+      internet: this.state.internet,
+      computer: this.state.computer,
+      power_backup: this.state.power_backup,
+      email: this.state.email,
+      password: this.state.password,
+      address: this.state.address,
+      slots_booked: this.state.slots_booked,
+      rating: this.state.rating,
+      iserror: false,
+    };
+    // console.log({
+    //   venue_id: data.venue_id,
+    //   name: data.name,
+    //   rent: data.rent,
+    //   capacity: data.capacity,
+    //   ac: data.ac,
+    //   projector: data.projector,
+    //   internet: data.internet,
+    //   computer: data.computer,
+    //   power_backup: data.power_backup,
+    //   email: data.email,
+    //   address: data.address,
+    // });
+    if(isUpdate && this.state.iserror === false) {
+      try{
+        const response = await axios.post(`${backendURL}/update_venue`, data);
         const token = response.data.result.token;
         localStorage.setItem("expeditetoken", token);
-        this.props.history.push("./");
-      } catch (error) {
-        this.state.iserror = true;
+        // CHECK HISTORY AND THEN ADD
+        // this.props.history.push("./");
       }
-    };
+      catch (error) {
+        console.log("UPDATE VENUE ERROR" + error);
+        this.setState({iserror: true});
+      }
+    }
+    else {
+      if(this.state.iserror === false) {
+        try{
+          const response = await axios.post(`${backendURL}/add_venue`, data);
+          const token = response.data.result.token;
+          localStorage.setItem("expeditetoken", token);
+          // CHECK HISTORY THEN ADD
+          // this.props.history.push("./");
+        }
+        catch (error) {
+          console.log("ADD VENUE ERROR" + error);
+          this.setState({iserror: true});
+        }
+      }
+    }
+  };
 
-    const handleChange = (event) => {
+  handleChange = (event) => {
+    if(event.target.name === "rent" || event.target.name === "capacity" || event.target.name === "slots") {
+      this.setState({
+        [event.target.name]: event.target.value.replace(/\D/,''),
+      });
+    }
+    else {
       this.setState({
         [event.target.name]: event.target.value,
       });
-    };
+    }
+  };
 
-    const handleToggle = (event) => {
-      this.setState({
-        [event.target.name]: event.target.checked,
-      });
-      console.log(event.target.name + " " + event.target.checked);
-    };
+  handleChangeDate = (newvalue) => {
+    this.setState({eventDate: newvalue});
+  }
+  handleChangeStartTime = (newvalue) => {
+    this.setState({eventStartTime: newvalue});
+  }
+  handleChangeEndTime = (newvalue) => {
+    this.setState({eventEndTime: newvalue});
+  }
+  handleToggle = (event) => {
+    this.setState({
+      [event.target.name]: event.target.checked,
+    });
+  };
 
+  addSlot = () => {
+    const arr = [];
+    arr.push(this.state.eventDate.toLocaleDateString())
+    arr.push(this.state.eventStartTime.toLocaleTimeString())
+    arr.push(this.state.eventEndTime.toLocaleTimeString())
+    // SOMEHOW GET THIS EVENT ID... SHOULD BE UNIQUE
+    arr.push("EVENTID")
+    if(this.state.slots_booked.length == null) {
+      this.setState({slots_booked: [arr,]});
+    }
+    else {
+      this.setState({slots_booked: [...this.state.slots_booked, [...arr]]});
+    }
+  }
+
+  deleteSlot = (event) => {
+    console.log(event.target.id);
+    var arr = this.state.slots_booked;
+    for(var i = 0; i < arr.length; i++) {
+      if(arr[i][3] === event.target.id) {
+        arr.splice(i, 1);
+        break;
+      }
+    }
+    this.setState({slots_booked: arr});
+  }
+
+  render() {
+    const isUpdate = this.props.isUpdate;
     return (
       <ThemeProvider theme={theme}>
-        <Container component="main" maxWidth="xs">
+        <Container component="main" maxWidth="md">
           <CssBaseline />
           <Box
             sx={{
               marginTop: 8,
+              marginBottom: 8,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -117,26 +230,44 @@ class Venue extends Component {
               Sign In
             </Typography>
             <br></br>
-            {this.state.iserror && (
-              <Alert severity="error">Can't Add Venue Check The Details Entered</Alert>
+            {!isUpdate && this.state.iserror && (
+              <Alert severity="error">Check The Details Entered</Alert>
             )}
             <Box
               component="form"
-              onSubmit={handleSubmit}
-              noValidate
+              onSubmit={this.handleSubmit}
               sx={{ mt: 1 }}
             >
               <TextField
                 margin="normal"
                 required
                 fullWidth
+                inputProps={{ 
+                  minLength: 1,
+                  maxLength: 16
+                }}
+                id="venue_id"
+                label="Venue ID"
+                name="venue_id"
+                autoComplete="venue_id"
+                autoFocus
+                value={this.state.venue_id}
+                onChange={this.handleChange}
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                inputProps={{ 
+                  minLength: 1,
+                  maxLength: 16
+                }}
                 id="name"
                 label="Venue Name"
                 name="name"
                 autoComplete="name"
-                autoFocus
                 value={this.state.name}
-                onChange={handleChange}
+                onChange={this.handleChange}
               />
               <TextField
                 margin="normal"
@@ -145,42 +276,37 @@ class Venue extends Component {
                 id="rent"
                 label="Venue rent"
                 name="rent"
+                type="number"
                 autoComplete="rent"
                 value={this.state.rent}
-                onChange={handleChange}
+                onChange={this.handleChange}
               />
               <TextField
                 margin="normal"
                 required
                 fullWidth
                 id="capacity"
+                type="number"
                 label="Venue capacity"
                 name="capacity"
                 autoComplete="capacity"
                 value={this.state.capacity}
-                onChange={handleChange}
+                onChange={this.handleChange}
               />
               <TextField
                 margin="normal"
                 required
                 fullWidth
+                inputProps={{ 
+                  minLength: 1,
+                  maxLength: 32
+                }}
                 id="address"
                 label="Venue Address"
                 name="address"
                 autoComplete="address"
                 value={this.state.address}
-                onChange={handleChange}
-              />              
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="slots"
-                label="Slots Available At Venue"
-                name="slots"
-                autoComplete="slots"
-                value={this.state.slots}
-                onChange={handleChange}
+                onChange={this.handleChange}
               />
               <TextField
                 margin="normal"
@@ -188,23 +314,31 @@ class Venue extends Component {
                 fullWidth
                 id="email"
                 label="Email Address"
+                type="email"
                 name="email"
                 autoComplete="email"
                 value={this.state.email}
-                onChange={handleChange}
+                onChange={this.handleChange}
               />
+              {/* Currently Cant Update Password */}
+              {!isUpdate &&
               <TextField
                 margin="normal"
                 required
                 fullWidth
+                inputProps={{ 
+                  minLength: 8,
+                  maxLength: 15
+                }}
                 name="password"
                 label="Password"
                 type="password"
                 id="password"
                 autoComplete="current-password"
                 value={this.state.password}
-                onChange={handleChange}
-              />
+                onChange={this.handleChange}
+              /> 
+              }
               <FormControlLabel
                 label="Venue Has AC"
                 labelPlacement="start"
@@ -214,7 +348,7 @@ class Venue extends Component {
                     id="ac"
                     name="ac"
                     checked={this.state.ac}
-                    onChange={handleToggle}
+                    onChange={this.handleToggle}
                   />
                 }
               />
@@ -227,7 +361,7 @@ class Venue extends Component {
                     id="projector"
                     name="projector"
                     checked={this.state.projector}
-                    onChange={handleToggle}
+                    onChange={this.handleToggle}
                   />
                 }
               />
@@ -240,7 +374,7 @@ class Venue extends Component {
                     id="internet"
                     name="internet"
                     checked={this.state.internet}
-                    onChange={handleToggle}
+                    onChange={this.handleToggle}
                   />
                 }
               />
@@ -253,7 +387,7 @@ class Venue extends Component {
                     id="computer"
                     name="computer"
                     checked={this.state.computer}
-                    onChange={handleToggle}
+                    onChange={this.handleToggle}
                   />
                 }
               />
@@ -266,7 +400,7 @@ class Venue extends Component {
                     id="power_backup"
                     name="power_backup"
                     checked={this.state.power_backup}
-                    onChange={handleToggle}
+                    onChange={this.handleToggle}
                   />
                 }
               />
@@ -280,6 +414,78 @@ class Venue extends Component {
               </Button>
             </Box>
           </Box>
+          <Container>
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <TableContainer component={Paper} sx={{ marginBottom:8 }}>
+              <Table sx={{ minWidth: 700 }} aria-label="customized table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>EVENT ID</TableCell>
+                    <TableCell align="right">DATE</TableCell>
+                    <TableCell align="right">START TIME</TableCell>
+                    <TableCell align="right">END TIME</TableCell>
+                    <TableCell align="right">DELETE</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {this.state.slots_booked && this.state.slots_booked.map((slot) => (
+                    <TableRow key={slot[3]}>
+                      <TableCell component="th" scope="slot">
+                        {slot[3]}
+                      </TableCell>
+                      <TableCell align="right">{slot[0]}</TableCell>
+                      <TableCell align="right">{slot[1]}</TableCell>
+                      <TableCell align="right">{slot[2]}</TableCell>
+                      <TableCell align="right"> 
+                        <Button
+                          type="button"
+                          variant="contained"
+                          color="error"
+                          id={slot[3]}
+                          endIcon={<DeleteIcon />}
+                          onClick={this.deleteSlot}
+                          sx={{mt: 2, mb: 2}}
+                        >
+                          Delete
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <Stack spacing={3}>
+              <DesktopDatePicker
+                label="Select Date To Book Slot"
+                inputFormat="dd/MM/yyyy"
+                value={this.state.eventDate}
+                onChange={this.handleChangeDate}
+                renderInput={(params) => <TextField {...params} />}
+              />
+              <TimePicker
+                label="Start Time"
+                value={this.state.eventStartTime}
+                onChange={this.handleChangeStartTime}
+                renderInput={(params) => <TextField {...params} />}
+              />
+              <TimePicker
+                label="End Time"
+                value={this.state.eventEndTime}
+                onChange={this.handleChangeEndTime}
+                renderInput={(params) => <TextField {...params} />}
+              />
+            </Stack>
+            <Button
+              type="button"
+              fullWidth
+              variant="outlined"
+              onClick={this.addSlot}
+              sx={{mt: 3, mb: 2}}
+            >
+              Add Slot
+            </Button>
+            </LocalizationProvider>
+          </Container>
         </Container>
       </ThemeProvider>
     );

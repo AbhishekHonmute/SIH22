@@ -2,6 +2,7 @@ const router = require("express").Router();
 const Venue = require("../models/Venue");
 const Event = require("../models/Event");
 const Order = require("../models/Order");
+const { returnHashedPassowrd } = require("../util");
 
 router.route("/add_venue").post(async (req, res) => {
   try {
@@ -45,33 +46,34 @@ router.route("/add_venue").post(async (req, res) => {
         result: "Venue ID already exists. Enter a different Venue ID",
       });
     } else {
-      try {
-        const new_venue = new Venue({
-          venue_id,
-          name,
-          rent,
-          capacity,
-          ac,
-          projector,
-          internet,
-          computer,
-          power_backup,
-          email,
-          password,
-          rating,
-          address,
-          slots_booked,
-        });
-        console.log(new_venue);
-        new_venue.save();
-      } catch (error) {
-        console.log(error.message);
-      }
+        returnHashedPassowrd(password)
+        .then((hashedPassword) => {
+          const new_venue = new Venue({
+            venue_id,
+            name,
+            rent,
+            capacity,
+            ac,
+            projector,
+            internet,
+            computer,
+            power_backup,
+            email,
+            password: hashedPassword,
+            rating,
+            address,
+            slots_booked,
+          });
+          console.log(new_venue);
+          new_venue.save();
+        })
+        .catch((error) => console.log(error.message));
       res.status(200).json({
         result: "Venue Registered",
       });
     }
-  } catch (error) {
+  }
+  catch (error) {
     res.status(400).json({
       result: "Cannot Register Venue",
     });
