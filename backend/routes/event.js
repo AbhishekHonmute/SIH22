@@ -21,6 +21,7 @@ router.route("/add_event").post(async (req, res) => {
       venue_status,
       order_id,
       order_status,
+      canteen_id,
       members_list,
       spendings,
     } = req.body;
@@ -41,6 +42,7 @@ router.route("/add_event").post(async (req, res) => {
       venue_status,
       order_id,
       order_status,
+      canteen_id,
       members_list,
       spendings
     );
@@ -68,6 +70,7 @@ router.route("/add_event").post(async (req, res) => {
           venue_status,
           order_id,
           order_status,
+          canteen_id,
           members_list,
           spendings,
         });
@@ -105,6 +108,7 @@ router.route("/update_event").post(async (req, res) => {
       venue_status,
       order_id,
       order_status,
+      canteen_id,
       members_list,
       spendings,
     } = req.body;
@@ -124,6 +128,7 @@ router.route("/update_event").post(async (req, res) => {
       venue_status,
       order_id,
       order_status,
+      canteen_id,
       members_list,
       spendings
     );
@@ -145,6 +150,7 @@ router.route("/update_event").post(async (req, res) => {
       venue_status,
       order_id,
       order_status,
+      canteen_id,
       members_list,
       spendings,
     };

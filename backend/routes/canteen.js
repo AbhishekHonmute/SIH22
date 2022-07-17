@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const Canteen = require("../models/Canteen");
 const Order = require("../models/Order");
+const Event = require("../models/Event");
 
 router.route("/add_canteen").post(async (req, res) => {
   try {
@@ -112,6 +113,9 @@ router.route("/delete_canteen/:canteen_id").delete(async (req, res) => {
     console.log(canteen_id);
     await Canteen.deleteOne({ canteen_id });
     await Order.deleteMany({ canteen_id });
+    const old_query = { canteen_id: canteen_id };
+    const new_query = { $set: { canteen_id: "", order_id: "" } };
+    await Event.updateMany(old_query, new_query);
     console.log("No error here bro");
     res.status(200).json({
       result: "Canteen deleted",
