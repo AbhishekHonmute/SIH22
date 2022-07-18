@@ -1,11 +1,13 @@
-const bcrypt = require("bcrypt");
 const axios = require("axios");
 const config = require("config");
+var crypto = require("crypto");
 
 async function compareHashedPassword(password, dbpassword) {
   try {
-    const compared = await bcrypt.compare(password, dbpassword);
-    return compared;
+    const hashedPassword = await crypto
+      .pbkdf2Sync(password, "", 1000, 64, `sha512`)
+      .toString(`hex`);
+    return hashedPassword === dbpassword;
   } catch (error) {
     console.log(error.message);
     return false;
@@ -14,7 +16,9 @@ async function compareHashedPassword(password, dbpassword) {
 
 async function returnHashedPassowrd(password) {
   try {
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await crypto
+      .pbkdf2Sync(password, "", 1000, 64, `sha512`)
+      .toString(`hex`);
     return hashedPassword;
   } catch (error) {
     console.log(error.message);

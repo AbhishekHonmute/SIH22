@@ -7,7 +7,12 @@ class Dashboard extends Component {
     this.state = {};
   }
   render() {
-    return <Typography>Dashboard</Typography>;
+    if (localStorage.getItem("expeditetoken") != null) {
+      const usertype = localStorage.getItem("expediteusertype");
+      return <Typography>Dashboard : {usertype} Logged In </Typography>;
+    } else {
+      return <Typography>Dashboard : Not Logged In</Typography>;
+    }
   }
 }
 
