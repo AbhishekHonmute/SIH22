@@ -35,6 +35,8 @@ class Venue extends Component {
       capacity: "",
       email: "",
       password: "",
+      oldpassword: "",
+      newpassword: "",
       rating: "",
       address: "",
       slots_booked: [], //4 : Date : startTime EndTime EventID
@@ -72,6 +74,8 @@ class Venue extends Component {
             power_backup: data.power_backup,
             email: data.email,
             password: data.password,
+            oldpassword: "",
+            newpassword: "",
             address: data.address,
             slots_booked: data.slots_booked,
           });
@@ -84,13 +88,7 @@ class Venue extends Component {
     }
   }
 
-  validateForm = () => {
-    console.log("Validating");
-    this.setState({iserror: false})
-  }
-
   handleSubmit = async (event) => {
-    this.validateForm();
     event.preventDefault();
     const isUpdate = this.props.isUpdate;
     const data = {
@@ -105,6 +103,8 @@ class Venue extends Component {
       power_backup: this.state.power_backup,
       email: this.state.email,
       password: this.state.password,
+      oldpassword: this.state.oldpassword,
+      newpassword: this.state.newpassword,
       address: this.state.address,
       slots_booked: this.state.slots_booked,
       rating: this.state.rating,
@@ -182,17 +182,18 @@ class Venue extends Component {
   };
 
   addSlot = () => {
-    const arr = [];
-    arr.push(this.state.eventDate.toLocaleDateString())
-    arr.push(this.state.eventStartTime.toLocaleTimeString())
-    arr.push(this.state.eventEndTime.toLocaleTimeString())
-    // SOMEHOW GET THIS EVENT ID... SHOULD BE UNIQUE
-    arr.push("EVENTID")
+    var arr = {}
+    // Get From SomeWhere
+    let r = (Math.random() + 1).toString(36).substring(7);
+    arr['eventId'] = "EVENTID : " + r;
+    arr['eventDate'] = this.state.eventDate.toLocaleDateString();
+    arr['eventStartTime'] = this.state.eventStartTime.toLocaleTimeString();
+    arr['eventEndTime'] = this.state.eventEndTime.toLocaleTimeString();
     if(this.state.slots_booked.length == null) {
       this.setState({slots_booked: [arr,]});
     }
     else {
-      this.setState({slots_booked: [...this.state.slots_booked, [...arr]]});
+      this.setState({slots_booked: [...this.state.slots_booked, arr]});
     }
   }
 
@@ -200,7 +201,7 @@ class Venue extends Component {
     console.log(event.target.id);
     var arr = this.state.slots_booked;
     for(var i = 0; i < arr.length; i++) {
-      if(arr[i][3] === event.target.id) {
+      if(arr[i]['eventId'] === event.target.id) {
         arr.splice(i, 1);
         break;
       }
@@ -339,6 +340,38 @@ class Venue extends Component {
                 onChange={this.handleChange}
               /> 
               }
+              {isUpdate &&
+              <TextField
+                margin="normal"
+                fullWidth
+                inputProps={{ 
+                  minLength: 8,
+                  maxLength: 15
+                }}
+                name="oldpassword"
+                label="Old Password"
+                type="password"
+                id="oldpassword"
+                value={this.state.oldpassword}
+                onChange={this.handleChange}
+              />
+              }
+              {isUpdate &&
+              <TextField
+                margin="normal"
+                fullWidth
+                inputProps={{ 
+                  minLength: 8,
+                  maxLength: 15
+                }}
+                name="newpassword"
+                label="New Password"
+                type="password"
+                id="newpassword"
+                value={this.state.newpassword}
+                onChange={this.handleChange}
+              />
+              }
               <FormControlLabel
                 label="Venue Has AC"
                 labelPlacement="start"
@@ -429,19 +462,19 @@ class Venue extends Component {
                 </TableHead>
                 <TableBody>
                   {this.state.slots_booked && this.state.slots_booked.map((slot) => (
-                    <TableRow key={slot[3]}>
+                    <TableRow key={slot['eventId']}>
                       <TableCell component="th" scope="slot">
-                        {slot[3]}
+                        {slot['eventId']}
                       </TableCell>
-                      <TableCell align="right">{slot[0]}</TableCell>
-                      <TableCell align="right">{slot[1]}</TableCell>
-                      <TableCell align="right">{slot[2]}</TableCell>
+                      <TableCell align="right">{slot['eventDate']}</TableCell>
+                      <TableCell align="right">{slot['eventStartTime']}</TableCell>
+                      <TableCell align="right">{slot['eventEndTime']}</TableCell>
                       <TableCell align="right"> 
                         <Button
                           type="button"
                           variant="contained"
                           color="error"
-                          id={slot[3]}
+                          id={slot['eventId']}
                           endIcon={<DeleteIcon />}
                           onClick={this.deleteSlot}
                           sx={{mt: 2, mb: 2}}

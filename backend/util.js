@@ -4,7 +4,7 @@ var crypto = require("crypto");
 
 async function compareHashedPassword(password, dbpassword) {
   try {
-    const hashedPassword = await crypto
+    const hashedPassword = crypto
       .pbkdf2Sync(password, "", 1000, 64, `sha512`)
       .toString(`hex`);
     return hashedPassword === dbpassword;
@@ -16,7 +16,7 @@ async function compareHashedPassword(password, dbpassword) {
 
 async function returnHashedPassowrd(password) {
   try {
-    const hashedPassword = await crypto
+    const hashedPassword = crypto
       .pbkdf2Sync(password, "", 1000, 64, `sha512`)
       .toString(`hex`);
     return hashedPassword;

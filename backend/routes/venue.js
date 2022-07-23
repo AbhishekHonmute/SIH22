@@ -2,7 +2,7 @@ const router = require("express").Router();
 const Venue = require("../models/Venue");
 const Event = require("../models/Event");
 const Order = require("../models/Order");
-const { returnHashedPassowrd } = require("../util");
+const { returnHashedPassowrd, compareHashedPassword } = require("../util");
 
 router.route("/add_venue").post(async (req, res) => {
   try {
@@ -94,6 +94,8 @@ router.route("/update_venue").post(async (req, res) => {
       power_backup,
       email,
       password,
+      oldpassword,
+      newpassword,
       rating,
       address,
       slots_booked,
@@ -110,12 +112,12 @@ router.route("/update_venue").post(async (req, res) => {
       power_backup,
       email,
       password,
+      oldpassword,
+      newpassword,
       rating,
       address,
       slots_booked
     );
-
-    const old_query = { venue_id: venue_id };
     const new_data = {
       venue_id,
       name,
@@ -132,10 +134,27 @@ router.route("/update_venue").post(async (req, res) => {
       address,
       slots_booked,
     };
-    Venue.updateOne(old_query, new_data, function (err, res) {
-      if (err) throw err;
-      console.log("1 document updated");
-    });
+    if(oldpassword === null || newpassword === null || (oldpassword === "" && newpassword === "")) {
+      const old_query = { venue_id: venue_id, password:password };
+      Venue.updateOne(old_query, new_data, function (err, res) {
+        if (err) throw err;
+        console.log("1 document updated");
+      });
+    }
+    else if(compareHashedPassword(oldpassword, password) === true) {
+      returnHashedPassowrd(newpassword)
+        .then((hashedPassword) => {
+          console.log("NEW PASS : " + newpassword + " : " + hashedPassword);
+          const old_query = { venue_id: venue_id };
+          new_data[password] = hashedPassword;
+          Venue.updateOne(old_query, new_data, function (err, res) {
+            if (err) throw err;
+            console.log("1 document updated");
+          })
+        })
+        .catch((error) => console.log(error.message));
+    }
+    console.log("PASSWORD DID NOT MATCH");
   } catch (error) {
     res.status(400).json({
       result: "Cannot Update Venue",
