@@ -198,6 +198,31 @@ router.route("/get_venue/:venue_id").get(async (req, res) => {
   }
 });
 
+router.route("/get_venues").get(async (req, res) => {
+  console.log("FETCHING");
+  try {
+    await Venue.find()
+    .then((venues) => {
+      data = {}
+      for (const [key, value] of Object.entries(venues)) {
+        data[key] = {"id": value.venue_id, "name": value.name};
+      }
+      res.status(200).json({
+        result: data,
+      })
+    })
+    .catch((error) => {
+      res.status(400).json({
+        result: error.message,
+      })
+    });
+  } catch (error) {
+    res.status(400).json({
+      result: "Failed to fetch venue data !",
+    }) 
+  }
+})
+
 module.exports = router;
 
 // "slots_booked":[{"event_id": "CN01", "start_time": {"$date":{"$numberLong":"-3722524108000"}}, "end_time": {"$date":{"$numberLong":"-3722437708000"}}}, {"event_id": "0", "start_time": {"$date":{"$numberLong":"-3752524108000"}}, "end_time": {"$date":{"$numberLong":"-3762437708000"}}}]

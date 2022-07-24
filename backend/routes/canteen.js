@@ -2,6 +2,7 @@ const router = require("express").Router();
 const Canteen = require("../models/Canteen");
 const Order = require("../models/Order");
 const Event = require("../models/Event");
+const { compareHashedPassword, returnHashedPassowrd } = require("../util");
 
 router.route("/add_canteen").post(async (req, res) => {
   try {
@@ -11,6 +12,7 @@ router.route("/add_canteen").post(async (req, res) => {
       email,
       password,
       rating,
+      counter,
       menu,
       serviceable_to,
       phone_no,
@@ -21,6 +23,7 @@ router.route("/add_canteen").post(async (req, res) => {
       email,
       password,
       rating,
+      counter,
       menu,
       serviceable_to,
       phone_no
@@ -32,22 +35,23 @@ router.route("/add_canteen").post(async (req, res) => {
         result: "Canteen ID already exists. Enter a different Canteen ID",
       });
     } else {
-      try {
+      returnHashedPassowrd(password)
+        .then((hashedPassword) => {
         const new_canteen = new Canteen({
           canteen_id,
           name,
           email,
-          password,
+          password:hashedPassword,
           rating,
+          counter,
           menu,
           serviceable_to,
           phone_no,
         });
         console.log(new_canteen);
         new_canteen.save();
-      } catch (error) {
-        console.log(error.message);
-      }
+      })
+      .catch((error) => console.log(error.message));
       res.status(200).json({
         result: "Canteen Registered",
       });
@@ -67,6 +71,7 @@ router.route("/update_canteen").post(async (req, res) => {
       email,
       password,
       rating,
+      counter,
       menu,
       serviceable_to,
       phone_no,
@@ -77,22 +82,25 @@ router.route("/update_canteen").post(async (req, res) => {
       email,
       password,
       rating,
+      counter,
       menu,
       serviceable_to,
       phone_no
     );
 
     const old_query = { canteen_id: canteen_id };
+
     const new_data = {
-      canteen_id,
-      name,
-      email,
-      password,
-      rating,
-      menu,
-      serviceable_to,
-      phone_no,
-    };
+          canteen_id,
+          name,
+          email,
+          password,
+          rating,
+          counter,
+          menu,
+          serviceable_to,
+          phone_no,
+        };
     Canteen.updateOne(old_query, new_data, function (err, res) {
       if (err) throw err;
       console.log("1 document updated");
@@ -113,9 +121,6 @@ router.route("/delete_canteen/:canteen_id").delete(async (req, res) => {
     console.log(canteen_id);
     await Canteen.deleteOne({ canteen_id });
     await Order.deleteMany({ canteen_id });
-    const old_query = { canteen_id: canteen_id };
-    const new_query = { $set: { canteen_id: "", order_id: "" } };
-    await Event.updateMany(old_query, new_query);
     console.log("No error here bro");
     res.status(200).json({
       result: "Canteen deleted",
