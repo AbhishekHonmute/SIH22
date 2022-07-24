@@ -14,7 +14,6 @@ const routes = [
   "cell",
   "canteen",
   "order",
-  "fooditem",
 ];
 
 const app = express();
