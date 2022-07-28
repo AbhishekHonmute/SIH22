@@ -8,7 +8,7 @@ import CanteenLogin from "./pages/CanteenLogin";
 import CanteenDashboard from "./pages/CanteenDashboard";
 import MenuAppBar from "./components/MenuAppBar";
 import Fooditem from "./pages/Fooditem";
-
+import Order from "./pages/Order";
 
 function App() {
   return (
@@ -25,6 +25,7 @@ function App() {
         <Route path="/canteen/:canteen_id" element={<CanteenDashboard />} />
         <Route path="/register_canteen" element={<CanteenRegister />} />
         <Route path="/login_canteen" element={<CanteenLogin />} />
+        <Route path="/order" element={<Order />} />
       </Routes>
     </BrowserRouter>
   );

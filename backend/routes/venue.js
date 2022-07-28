@@ -229,7 +229,7 @@ router.route("/get_venues").get(async (req, res) => {
 			});
 	} catch (error) {
 		res.status(400).json({
-			result: "Failed to fetch venue data !",
+			result: "Failed to fetch venues !",
 		});
 	}
 });

@@ -147,6 +147,46 @@ router.route("/get_canteen/:canteen_id").get(async (req, res) => {
   }
 });
 
+router.route("/get_canteens").get(async (req, res) => {
+  try {
+		await Canteen.find()
+			.then((canteens) => {
+        let data = [];
+        
+				for (const [key, value] of Object.entries(canteens)) {
+          data.push({ id: value.canteen_id, name: value.name});
+          // console.log(value);
+				}
+				res.status(200).json({
+					result: data,
+				});
+			})
+			.catch((error) => {
+				res.status(400).json({
+					result: error.message,
+				});
+			});
+	} catch (error) {
+		res.status(400).json({
+			result: "Failed to fetch canteens !",
+		});
+	}
+})
+
+router.route("/get_menu/:canteen_id").get(async (req, res) => {
+  try {
+    const canteen_id = req.params.canteen_id;
+    const canteen = await Canteen.findOne({ canteen_id });
+    res.status(200).json({
+      result: canteen === null ? [] : canteen.menu,
+    });
+  } catch (error) {
+    res.status(400).json({
+      result: "Failed to fetch canteen menu !",
+    });
+  }
+});
+
 module.exports = router;
 
 // "menu": [{"item_id": "C01M1", "item_name": "roti", "item_price": 10, "is_veg": 1}, {"item_id": "C01M2", "item_name": "samosa", "item_price": 20, "is_veg": 1}, {"item_id": "C01M3", "item_name": "rice", "item_price": 100, "is_veg": 1}],
