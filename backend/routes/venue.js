@@ -210,7 +210,7 @@ router.route("/get_venue/:venue_id").get(async (req, res) => {
 });
 
 router.route("/get_venues").get(async (req, res) => {
-	console.log("FETCHING");
+	// console.log("FETCHING");
 	try {
 		await Venue.find()
 			.then((venues) => {
@@ -233,6 +233,21 @@ router.route("/get_venues").get(async (req, res) => {
 		});
 	}
 });
+
+router.route("/get_slotsBooked/:venue_id").get(async (req, res) => {
+	try {
+		const venue_id = req.params.venue_id;
+		const venue = await Venue.findOne({ venue_id });
+		// console.log(venue.slots_booked);
+		res.status(200).json({
+			result: venue.slots_booked,
+		});
+	} catch (error) {
+		res.status(400).json({
+			result: [],
+		});
+	}
+})
 
 module.exports = router;
 

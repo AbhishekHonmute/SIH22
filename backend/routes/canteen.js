@@ -178,7 +178,7 @@ router.route("/get_menu/:canteen_id").get(async (req, res) => {
     const canteen_id = req.params.canteen_id;
     const canteen = await Canteen.findOne({ canteen_id });
     res.status(200).json({
-      result: canteen === null ? [] : canteen.menu,
+      result: canteen === null ? {} : canteen.menu,
     });
   } catch (error) {
     res.status(400).json({

@@ -46,7 +46,7 @@ class CanteenDashboard extends Component {
 
 	handleToggle = (venue_id) => {
 		if (this.state.is_profile_editable) {
-			console.log(venue_id);
+			// console.log(venue_id);
 			const allvenue = this.state.allvenue;
 			const serviceable_to = [];
 			for (let j = 0; j < allvenue.length; j++) {
@@ -68,7 +68,7 @@ class CanteenDashboard extends Component {
 	};
 
 	handleEditProfile = async (event) => {
-		console.log("Profile Edit Request");
+		// console.log("Profile Edit Request");
 		this.setState({ is_profile_editable: true });
 	};
 
@@ -92,16 +92,25 @@ class CanteenDashboard extends Component {
 	};
 
 	handleAddfooditem = async (event) => {
-    console.log(this.state.counter);
-    
+		// console.log(this.state.counter);
+
 		const menuId = `${this.state.canteen_id}M${this.state.counter}`;
-		console.log(menuId);
+		// console.log(menuId);
 
-		this.state.menu.unshift([menuId, "Edit New Menu", "0", true]);
+		this.state.menu.unshift({
+			id: menuId,
+			name: "Edit New Menu",
+			price: "0",
+			isVeg: true,
+		});
 
-		console.log(this.state.menu);
+		// console.log(this.state.menu);
 		this.setState({ counter: this.state.counter + 1 });
 	};
+
+	handleDeleteItem = () => {
+		console.log("DELETED");
+	}
 
 	handleSaveProfile = async (event) => {
 		this.setState({ is_profile_editable: false });
@@ -119,17 +128,17 @@ class CanteenDashboard extends Component {
 			phone_no: this.state.phone_no,
 		};
 
-		console.log({
-			canteen_id: this.state.canteen_id,
-			name: this.state.name,
-			email: this.state.email,
-			password: this.state.password,
-			rating: this.state.rating,
-			counter: this.state.counter,
-			menu: this.state.menu,
-			serviceable_to: this.state.serviceable_to,
-			phone_no: this.state.phone_no,
-		});
+		// console.log({
+		// 	canteen_id: this.state.canteen_id,
+		// 	name: this.state.name,
+		// 	email: this.state.email,
+		// 	password: this.state.password,
+		// 	rating: this.state.rating,
+		// 	counter: this.state.counter,
+		// 	menu: this.state.menu,
+		// 	serviceable_to: this.state.serviceable_to,
+		// 	phone_no: this.state.phone_no,
+		// });
 
 		try {
 			const response = await axios.post(`${backendURL}/update_canteen`, data);
@@ -145,10 +154,9 @@ class CanteenDashboard extends Component {
 		const canteen_id = window.location.pathname.split("/")[2];
 		axios.get(`${backendURL}/get_canteen/${canteen_id}`).then((resp) => {
 			const canteen = resp.data.result;
-			console.log("Hiii");
 			const MenuCard = canteen.menu;
 
-			console.log(typeof MenuCard);
+			// console.log(typeof MenuCard);
 			this.setState({ canteen_id: canteen.canteen_id });
 			this.setState({ name: canteen.name });
 			this.setState({ email: canteen.email });
@@ -163,7 +171,7 @@ class CanteenDashboard extends Component {
 			const venues = resp.data.result;
 			const allvenue = [];
 			for (let i = 0; i < Object.keys(venues).length; i++) {
-				console.log(venues[i].id);
+				// console.log(venues[i].id);
 				allvenue.push([venues[i].id, venues[i].name, false]);
 			}
 
@@ -175,11 +183,11 @@ class CanteenDashboard extends Component {
 				}
 			}
 
-			console.log(allvenue);
+			// console.log(allvenue);
 			this.setState({ allvenue: allvenue });
 		});
 
-		console.log(this.state.menu);
+		// console.log(this.state.menu);
 	}
 	render() {
 		return (
@@ -385,9 +393,10 @@ class CanteenDashboard extends Component {
 						<Grid>
 							{this.state.menu.map((fooditem) => (
 								<Menufooditem
-									key={fooditem[0]}
+									key={fooditem.id}
 									item={fooditem}
 									canteen_id={this.state.canteen_id}
+									onChange={this.handleDeleteItem}
 								></Menufooditem>
 							))}
 						</Grid>

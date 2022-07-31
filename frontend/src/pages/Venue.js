@@ -38,13 +38,13 @@ class Venue extends Component {
 		this.state = {
 			venue_id: "",
 			name: "",
-			rent: "",
-			capacity: "",
+			rent: 0,
+			capacity: 0,
 			email: "",
 			password: "",
 			oldpassword: "",
 			newpassword: "",
-			rating: "",
+			rating: 0,
 			address: "",
 			slots_booked: [], //4 : Date : startTime EndTime EventID
 
@@ -169,7 +169,7 @@ class Venue extends Component {
 						.then((res) => {
 							if (res.status === 200) {
 								console.log(res);
-								this.props.history.push("/venue");
+								// this.props.history.push("/venue");
 							}
 							// What is this token?
 							const token = res.token;
@@ -196,7 +196,7 @@ class Venue extends Component {
 			event.target.name === "slots"
 		) {
 			this.setState({
-				[event.target.name]: event.target.value.replace(/\D/, ""),
+				[event.target.name]: parseInt(event.target.value.replace(/\D/, "")),
 			});
 		} else {
 			this.setState({
@@ -225,15 +225,31 @@ class Venue extends Component {
 		// Get From SomeWhere
 		let r = (Math.random() + 1).toString(36).substring(7);
 		arr["eventId"] = "EVENTID : " + r;
-		arr["eventDate"] = this.state.eventDate.toLocaleDateString();
-		arr["eventStartTime"] = this.state.eventStartTime.toLocaleTimeString();
-		arr["eventEndTime"] = this.state.eventEndTime.toLocaleTimeString();
+		arr["eventDate"] = this.state.eventDate.toLocaleDateString("en-GB");
+		arr["eventStartTime"] = this.state.eventStartTime
+			.toTimeString()
+			.split(" ")[0]
+			.slice(0, 5);
+		arr["eventEndTime"] = this.state.eventEndTime
+			.toTimeString()
+			.split(" ")[0]
+			.slice(0, 5);
 		if (this.state.slots_booked.length == null) {
 			this.setState({ slots_booked: [arr] });
 		} else {
 			this.setState({ slots_booked: [...this.state.slots_booked, arr] });
 		}
 	};
+
+	checkAvailableStartSlot = (time, clockType) => {
+		// Do Some checking Here
+		return false;
+	}
+
+	checkAvailableEndSlot = (time, clockType) => {
+		// Do Some CHECKING HERE
+		return false
+	}
 
 	deleteSlot = (event) => {
 		console.log(event.target.id);
@@ -535,18 +551,21 @@ class Venue extends Component {
 									inputFormat="dd/MM/yyyy"
 									value={this.state.eventDate}
 									onChange={this.handleChangeDate}
+									disablePast={true}
 									renderInput={(params) => <TextField {...params} />}
 								/>
 								<TimePicker
 									label="Start Time"
 									value={this.state.eventStartTime}
 									onChange={this.handleChangeStartTime}
+									shouldDisableTime={this.checkAvailableStartSlot}
 									renderInput={(params) => <TextField {...params} />}
 								/>
 								<TimePicker
 									label="End Time"
 									value={this.state.eventEndTime}
 									onChange={this.handleChangeEndTime}
+									shouldDisableTime={this.checkAvailableEndSlot}
 									renderInput={(params) => <TextField {...params} />}
 								/>
 							</Stack>

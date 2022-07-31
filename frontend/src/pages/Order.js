@@ -34,19 +34,17 @@ class Order extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			order_id:"",
-			canteens: [],
-			canteenOrder: "",
+			order_id: "",
+			canteens_available: [],
 			canteen_id: "",
-			event_id: "",
-			venue_id: "",
+			event_id: "DEFAULT",
+			venue_id: "DEFAULT",
 			amount: 0,
-			status: "",
 			items: [],
+			itemChoosen: "",
 			maxQuantity: 80,
 			quantity: 0,
 			menu: [],
-			menuOrder: "",
 			iserror: false,
 		};
 	}
@@ -61,13 +59,12 @@ class Order extends Component {
 						if (res.status === 200) {
 							const data = res.data.result;
 							this.setState({
-								order_id : data.order_id,
-								canteen_id : data.canteen_id,
-								event_id : data.event_id,
-								venue_id : data.venue_id,
-								amount : data.amount,
-								status : data.status,
-								items : data.items,
+								order_id: data.order_id,
+								canteen_id: data.canteen_id,
+								event_id: data.event_id,
+								venue_id: data.venue_id,
+								amount: data.amount,
+								items: data.items,
 							});
 						} else {
 							this.setState({ iserror: true });
@@ -81,54 +78,55 @@ class Order extends Component {
 				this.setState({ iserror: true });
 			}
 		}
-		axios.get(`${backendURLCanteen}/get_canteens`)
-		.then((res) => {
-			this.setState({canteens: res.data.result});
-			this.setState({canteenOrder: res.data.result[0].id})
-			axios.get(`${backendURLCanteen}/get_menu/${this.state.canteenOrder}`)
+		axios
+			.get(`${backendURLCanteen}/get_canteens`)
 			.then((res) => {
-				this.setState({menu: res.data.result});
-				this.setState({menuOrder: res.data.result[0][0]});
-				console.log(res.data.result);
+				this.setState({ canteens_available: res.data.result });
+				this.setState({ canteen_id: res.data.result[0].id });
+				axios
+					.get(`${backendURLCanteen}/get_menu/${res.data.result[0].id}`)
+					.then((res) => {
+						// console.log(res.data.result);
+						this.setState({ menu: res.data.result });
+						this.setState({ itemChoosen: res.data.result[0].id });
+					})
+					.catch((error) => {
+						console.log("ERROR FETCHING MENU : " + error);
+					});
 			})
 			.catch((error) => {
-				console.log("ERROR FETCHING MENU : " + error);
-			})
-		})
-		.catch((error) => {
-			console.log("ERROR FETCHING CANTEENS : " + error);
-		})
+				console.log("ERROR FETCHING canteens_available : " + error);
+			});
 	};
 
 	handleSubmit = async (event) => {
 		event.preventDefault();
 		const isUpdate = this.props.isUpdate;
 		const data = {
-			order_id : this.state.order_id,
-			canteen_id : this.state.canteen_id,
-			event_id : this.state.event_id,
-			venue_id : this.state.venue_id,
-			amount : this.state.amount,
-			status : this.state.status,
-			items : this.state.items,
+			order_id: this.state.order_id,
+			canteen_id: this.state.canteen_id,
+			event_id: this.state.event_id,
+			venue_id: this.state.venue_id,
+			amount: this.state.amount,
+			items: this.state.items,
 		};
 		// console.log({
-			// order_id +
-			// canteen_id +
-			// event_id +
-			// venue_id +
-			// amount +
-			// status +
-			// items +
+		// order_id +
+		// canteen_id +
+		// event_id +
+		// venue_id +
+		// amount +
+		// status +
+		// items +
 		// });
 		if (isUpdate && this.state.iserror === false) {
 			try {
 				await axios
 					.post(`${backendURLOrder}/update_order`, data)
 					.then((res) => {
-						console.log(res.data);
+						// console.log(res.data);
 						const token = res.token;
-						console.log(token);
+						// console.log(token);
 						localStorage.setItem("updateOrderToken", token);
 						// SOMETHING WRONG HERE
 						// this.props.history.push("./");
@@ -153,12 +151,12 @@ class Order extends Component {
 						.post(`${backendURLOrder}/add_order`, data)
 						.then((res) => {
 							if (res.status === 200) {
-								console.log(res);
-								this.props.history.push("/order");
+								// console.log(res);
+								// this.props.history.push("/order");
 							}
 							// What is this token?
 							const token = res.token;
-							console.log(token);
+							// console.log(token);
 							localStorage.setItem("addorderToken", token);
 							// SOMETHING WRONG HERE
 							// this.props.history.push("./");
@@ -186,57 +184,58 @@ class Order extends Component {
 		}
 	};
 	handleSliderChange = (event) => {
-		this.setState({quantity: event.target.value});
-	  };
-	
+		this.setState({ quantity: event.target.value });
+	};
+
 	handleQuantityChange = (event) => {
-		this.setState({quantity: Number(event.target.value)});
-	  };
+		this.setState({ quantity: Number(event.target.value) });
+	};
 	loadCanteen = (event) => {
-		this.setState({canteenOrder: event.target.value});
-		axios.get(`${backendURLCanteen}/get_menu/${event.target.value}`)
-		.then((res) => {
-			this.setState({menu: res.data.result});
-			this.setState({menuOrder: res.data.result[0][0]});
-			console.log(res.data.result);
-		})
-		.catch((error) => {
-			console.log("ERROR FETCHING MENU : " + error);
-		})
+		this.setState({ canteen_id: event.target.value });
+		axios
+			.get(`${backendURLCanteen}/get_menu/${event.target.value}`)
+			.then((res) => {
+				this.setState({ menu: res.data.result });
+				this.setState({ itemChoosen: res.data.result[0].id });
+			})
+			.catch((error) => {
+				console.log("ERROR FETCHING MENU : " + error);
+			});
 	};
 
 	handleChangeItem = (event) => {
-		this.setState({menuOrder: event.target.value});	
-	}
+		this.setState({ itemChoosen: event.target.value });
+	};
 	addItem = () => {
 		let newItems = this.state.items;
 		let foundItem = false;
-		for(let i = 0; i < newItems.length; i++) {
-			if(this.state.menuOrder === newItems[i].id) {
-				if(newItems[i].quantity + this.state.quantity > this.state.maxQuantity) {
+		for (let i = 0; i < newItems.length; i++) {
+			if (this.state.itemChoosen === newItems[i].id) {
+				if (
+					newItems[i].quantity + this.state.quantity >
+					this.state.maxQuantity
+				) {
 					newItems[i].quantity = this.state.maxQuantity;
-				}
-				else {
+				} else {
 					newItems[i].quantity += this.state.quantity;
 				}
 				foundItem = true;
 			}
 		}
-		if(!foundItem) {
-			let order = {id: "", quantity: 0}
-			order.id = this.state.menuOrder;
+		if (!foundItem) {
+			let order = { id: "", quantity: 0 };
+			order.id = this.state.itemChoosen;
 			order.quantity = this.state.quantity;
 			newItems.push(order);
 		}
-		this.setState({items: newItems});
-
+		this.setState({ items: newItems });
 	};
 
 	deleteItem = (event) => {
-		console.log(event.target.id);
+		// console.log(event.target.id);
 		var arr = this.state.items;
 		for (var i = 0; i < arr.length; i++) {
-			if (arr[i]["id"] === event.target.id) {
+			if (arr[i].id === event.target.id) {
 				arr.splice(i, 1);
 				break;
 			}
@@ -289,29 +288,31 @@ class Order extends Component {
 							<Select
 								labelId="Select Canteen"
 								id="canteenSelector"
-								value={this.state.canteenOrder}
+								value={this.state.canteen_id}
 								label="Canteen"
 								onChange={this.loadCanteen}
-								>
-								{this.state.canteens &&
-									this.state.canteens.map((canteen) => (
-									<MenuItem value={ canteen.id } key={canteen.id}>{canteen.name}</MenuItem>
-								))
-								}
+							>
+								{this.state.canteens_available &&
+									this.state.canteens_available.map((canteen) => (
+										<MenuItem value={canteen.id} key={canteen.id}>
+											{canteen.name}
+										</MenuItem>
+									))}
 							</Select>
 							<Select
 								labelId="Select Menu Item"
 								id="menuSelector"
 								name="menuSelector"
-								value={this.state.menuOrder}
+								value={this.state.itemChoosen}
 								label="Menu"
 								onChange={this.handleChangeItem}
-								>
+							>
 								{this.state.menu &&
 									this.state.menu.map((item) => (
-									<MenuItem value={ item[0] } key={item[0]}>{item[1]	}</MenuItem>
-								))
-								}
+										<MenuItem value={item.id} key={item.id}>
+											{item.name}
+										</MenuItem>
+									))}
 							</Select>
 							<Slider
 								value={this.state.quantity}
@@ -324,11 +325,11 @@ class Order extends Component {
 								size="small"
 								onChange={this.handleQuantityChange}
 								inputProps={{
-								step: 10,
-								min: 0,
-								max: this.state.maxQuantity,
-								type: 'number',
-								'aria-labelledby': 'input-slider',
+									step: 1,
+									min: 0,
+									max: this.state.maxQuantity,
+									type: "number",
+									"aria-labelledby": "input-slider",
 								}}
 							/>
 							<Button
@@ -353,19 +354,19 @@ class Order extends Component {
 									<TableBody>
 										{this.state.items &&
 											this.state.items.map((item) => (
-												<TableRow key={item["id"]}>
+												<TableRow key={item.id}>
 													<TableCell component="th" scope="item">
-														{item["id"]}
+														{item.id}
 													</TableCell>
 													<TableCell align="right">
-														{item["quantity"]}
+														{item.quantity}
 													</TableCell>
 													<TableCell align="right">
 														<Button
 															type="button"
 															variant="contained"
 															color="error"
-															id={item["id"]}
+															id={item.id}
 															endIcon={<DeleteIcon />}
 															onClick={this.deleteItem}
 															sx={{ mt: 2, mb: 2 }}

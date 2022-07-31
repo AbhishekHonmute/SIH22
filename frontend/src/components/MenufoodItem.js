@@ -23,10 +23,10 @@ const backendURL = "http://localhost:5000/api/canteen";
 class Menufooditem extends Component {
 	constructor(props) {
 		super(props);
-		console.log(props.item[0]);
-		console.log(props.item[1]);
-		console.log(props.item[2]);
-		console.log(props.item[3]);
+		// console.log("ITEM ID " + props.item.id);
+		// console.log("ITEM NAME " + props.item.name);
+		// console.log("ITEM PRICE " + props.item.price);
+		// console.log("ITEM ISVEG " + props.item.isVeg);
 
 		this.state = {
 			menuId: "",
@@ -40,7 +40,7 @@ class Menufooditem extends Component {
 	}
 
 	handleEdit = async (event) => {
-		console.log("Profile Edit Request");
+		// console.log("Profile Edit Request");
 		this.setState({ isUpdate: true });
 	};
 
@@ -59,7 +59,7 @@ class Menufooditem extends Component {
 	};
 
 	handleCheckbox = async (event) => {
-		console.log(event.target.checked);
+		// console.log(event.target.checked);
 		if (event.target.checked === true) {
 			this.setState({ isVeg: true });
 		} else {
@@ -76,33 +76,39 @@ class Menufooditem extends Component {
 
 				let original_menu = canteen.menu;
 				let new_menu = true;
-				console.log(original_menu);
+				// console.log(original_menu);
 				for (let i = 0; i < original_menu.length; i++) {
-					if (original_menu[i][0] === this.state.menuId) {
-						original_menu[i][1] = this.state.menuName;
-						original_menu[i][2] = this.state.price;
-						original_menu[i][3] = this.state.isVeg;
+					if (original_menu[i].id === this.state.menuId) {
+						original_menu[i].name = this.state.menuName;
+						original_menu[i].price = this.state.price;
+						original_menu[i].isVeg = this.state.isVeg;
 						new_menu = false;
 						break;
 					}
 				}
 				if (new_menu) {
-					const newMenu = [];
+					const newMenu = {};
 					let counter = canteen.counter;
-					newMenu.push(this.state.menuId);
-					newMenu.push(this.state.menuName);
-					newMenu.push(this.state.price);
-					newMenu.push(this.state.isVeg);
+					newMenu.id = this.state.menuId;
+					newMenu.name = this.state.menuName;
+					newMenu.price = this.state.price;
+					newMenu.isVeg = this.state.isVeg;
 					original_menu.push(newMenu);
 					canteen.counter = counter + 1;
 				}
 				canteen.menu = original_menu;
 				const data = canteen;
 				try {
-					const response = axios.post(`${backendURL}/update_canteen`, data);
-					const token = response.data.result.token;
-					localStorage.setItem("expeditetoken", token);
-					this.props.history.push("./");
+					axios
+						.post(`${backendURL}/update_canteen`, data)
+						.then((res) => {
+							const token = res.data.result.token;
+							localStorage.setItem("expeditetoken", token);
+							// this.props.history.push("./");
+						})
+						.catch((err) => {
+							console.log(err);
+						});
 				} catch (error) {
 					this.state.iserror = true;
 				}
@@ -118,19 +124,25 @@ class Menufooditem extends Component {
 				const original_menu = canteen.menu;
 				const updated_menu = [];
 				for (let i = 0; i < original_menu.length; i++) {
-					if (original_menu[i][0] !== this.state.menuId) {
+					if (original_menu[i].id !== this.state.menuId) {
 						updated_menu.push(original_menu[i]);
 					}
 				}
 				canteen.menu = updated_menu;
 				const data = canteen;
-				console.log(data);
+				// console.log(data);
 				try {
-					const response = axios.post(`${backendURL}/update_canteen`, data);
-					const token = response.data.result.token;
-					localStorage.setItem("expeditetoken", token);
-					this.props.history.push("./");
-					this.setState({ iserror: true });
+					axios
+						.post(`${backendURL}/update_canteen`, data)
+						.then((res) => {
+							const token = res.data.result.token;
+							localStorage.setItem("expeditetoken", token);
+							// this.props.history.push("./");
+						})
+						.catch((err) => {
+							this.setState({ iserror: true });
+							console.log(err);
+						});
 				} catch (error) {
 					this.setState({ iserror: false });
 				}
@@ -141,11 +153,10 @@ class Menufooditem extends Component {
 		this.setState({ isVeg: !this.state.isVeg });
 	};
 	componentDidMount() {
-		console.log(this.props);
-		this.setState({ menuId: this.props.item[0] });
-		this.setState({ menuName: this.props.item[1] });
-		this.setState({ price: this.props.item[2] });
-		this.setState({ isVeg: this.props.item[3] });
+		this.setState({ menuId: this.props.item.id });
+		this.setState({ menuName: this.props.item.name });
+		this.setState({ price: this.props.item.price });
+		this.setState({ isVeg: this.props.item.isVeg });
 		this.setState({ canteen_id: this.props.canteen_id });
 	}
 
@@ -182,9 +193,8 @@ class Menufooditem extends Component {
 									gutterBottom
 									variant="body1"
 									component="div"
-									suppressContentEditableWarning={this.state.isUpdate}
 									contentEditable={this.state.isUpdate}
-									onChange={this.handleChange}
+									suppressContentEditableWarning={this.state.isUpdate}
 								>
 									{this.state.isUpdate ? (
 										<TextField
@@ -204,9 +214,8 @@ class Menufooditem extends Component {
 									gutterBottom
 									variant="subtitle2"
 									component="div"
-									suppressContentEditableWarning={this.state.isUpdate}
 									contentEditable={this.state.isUpdate}
-									onChange={this.handleChange}
+									suppressContentEditableWarning={this.state.isUpdate}
 								>
 									{this.state.isUpdate ? (
 										<TextField
@@ -226,24 +235,23 @@ class Menufooditem extends Component {
 									gutterBottom
 									variant="subtitle1"
 									component="div"
-									suppressContentEditableWarning={this.state.isUpdate}
 									contentEditable={this.state.isUpdate}
-									onChange={this.handleChange}
+									suppressContentEditableWarning={this.state.isUpdate}
 								>
 									{this.state.isUpdate ? (
 										<FormControlLabel
 											control={
 												<Switch
 													checked={this.state.isVeg}
-													onClick={() => this.handleToggle()}
 													value="active"
+													onClick={() => this.handleToggle()}
 													inputProps={{ "aria-label": "secondary checkbox" }}
 												/>
 											}
 											label="Veg"
 										/>
 									) : (
-										<></>
+										<>{this.state.isVeg}</>
 									)}
 								</Typography>
 
@@ -255,7 +263,6 @@ class Menufooditem extends Component {
 										this.state.is_profile_editable
 									}
 									contentEditable={this.state.is_profile_editable}
-									onChange={this.handleChange}
 								>
 									{this.state.is_profile_editable ? (
 										<TextField
@@ -266,6 +273,8 @@ class Menufooditem extends Component {
 											value={this.state.canteen_id}
 											onChange={this.handleChange}
 										/>
+									) : this.state.menuId === "" ? (
+										""
 									) : (
 										<>{this.state.menuId}</>
 									)}
