@@ -1,8 +1,10 @@
 const router = require("express").Router();
+const Admin = require("../models/admin");
 const Member = require("../models/Member");
+const Venue = require("../models/Venue");
+const Canteen = require("../models/Canteen");
 const Committee = require("../models/Committee");
 const Event = require("../models/Event");
-const Admin = require("../models/admin");
 const { compareHashedPassword, returnHashedPassowrd } = require("../util");
 
 router.route("/login").post(async (req, res) => {
@@ -44,9 +46,51 @@ router.route("/login").post(async (req, res) => {
           }
         });
       } else {
-        res.status(400).json({
-          result: "Email not found",
-        });
+        const user = await Venue.findOne({ email });
+        if (user) {
+          const parsedUser = JSON.parse(JSON.stringify(user));
+          compareHashedPassword(password, parsedUser.password).then(
+            (result) => {
+              if (result) {
+                const token = "expeditetoken";
+                const usertype = "Venue";
+                console.log("Login Successful");
+                res.status(200).json({
+                  result: { user: parsedUser, token, usertype },
+                });
+              } else {
+                res.status(400).json({
+                  result: "Wrong password",
+                });
+              }
+            }
+          );
+        } else {
+          const user = await Canteen.findOne({ email });
+          if (user) {
+            const parsedUser = JSON.parse(JSON.stringify(user));
+            compareHashedPassword(password, parsedUser.password).then(
+              (result) => {
+                if (result) {
+                  const token = "expeditetoken";
+                  const usertype = "Canteen";
+                  console.log("Login Successful");
+                  res.status(200).json({
+                    result: { user: parsedUser, token, usertype },
+                  });
+                } else {
+                  res.status(400).json({
+                    result: "Wrong password",
+                  });
+                }
+              }
+            );
+          } else {
+            res.status(400).json({
+              result: "Email not found",
+            });
+          }
+        }
       }
     }
   } catch {
