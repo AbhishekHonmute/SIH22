@@ -64,7 +64,7 @@ router.route("/add_venue").post(async (req, res) => {
 						address,
 						slots_booked,
 					});
-					console.log(new_venue);
+					// console.log(new_venue);
 					new_venue.save();
 				})
 				.catch((error) => console.log(error.message));
@@ -99,24 +99,24 @@ router.route("/update_venue").post(async (req, res) => {
 			address,
 			slots_booked,
 		} = req.body;
-		console.log(
-			venue_id,
-			name,
-			rent,
-			capacity,
-			ac,
-			projector,
-			internet,
-			computer,
-			power_backup,
-			email,
-			password,
-			oldpassword,
-			newpassword,
-			rating,
-			address,
-			slots_booked
-		);
+		// console.log(
+		// 	venue_id,
+		// 	name,
+		// 	rent,
+		// 	capacity,
+		// 	ac,
+		// 	projector,
+		// 	internet,
+		// 	computer,
+		// 	power_backup,
+		// 	email,
+		// 	password,
+		// 	oldpassword,
+		// 	newpassword,
+		// 	rating,
+		// 	address,
+		// 	slots_booked
+		// );
 		const new_data = {
 			venue_id,
 			name,
@@ -150,7 +150,7 @@ router.route("/update_venue").post(async (req, res) => {
 			compareHashedPassword(oldpassword, password).then((isSame) => {
 				if (isSame === true) {
 					returnHashedPassowrd(newpassword).then((hashedPassword) => {
-						console.log("NEW PASS : " + newpassword + " : " + hashedPassword);
+						// console.log("NEW PASS : " + newpassword + " : " + hashedPassword);
 						const old_query = { venue_id: venue_id };
 						new_data.password = hashedPassword;
 						Venue.updateOne(old_query, new_data, function (err, res) {
@@ -179,11 +179,11 @@ router.route("/update_venue").post(async (req, res) => {
 router.route("/delete_venue/:venue_id").delete(async (req, res) => {
 	try {
 		const venue_id = req.params.venue_id;
-		console.log(venue_id);
+		// console.log(venue_id);
 		await Venue.deleteOne({ venue_id });
 		await Event.deleteMany({ venue_id });
 		await Order.deleteMany({ venue_id });
-		console.log("No error here bro");
+		// console.log("No error here bro");
 		res.status(200).json({
 			result: "Venue deleted",
 		});
@@ -197,7 +197,7 @@ router.route("/delete_venue/:venue_id").delete(async (req, res) => {
 router.route("/get_venue/:venue_id").get(async (req, res) => {
 	try {
 		const venue_id = req.params.venue_id;
-		console.log(venue_id);
+		// console.log(venue_id);
 		const venue = await Venue.findOne({ venue_id });
 		res.status(200).json({
 			result: venue === null ? {} : venue,

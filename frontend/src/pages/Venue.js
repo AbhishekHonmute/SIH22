@@ -62,6 +62,9 @@ class Venue extends Component {
 	}
 	componentDidMount = () => {
 		const isUpdate = this.props.isUpdate;
+		var endTime = new Date();
+		endTime.setHours(21,0, 0);
+		this.setState({eventEndTime: endTime});
 		if (isUpdate) {
 			const venue_id = window.location.pathname.split("/")[2];
 			try {
@@ -141,9 +144,9 @@ class Venue extends Component {
 				await axios
 					.post(`${backendURL}/update_venue`, data)
 					.then((res) => {
-						console.log(res.data);
+						// console.log(res.data);
 						const token = res.token;
-						console.log(token);
+						// console.log(token);
 						localStorage.setItem("updateVenueToken", token);
 						// SOMETHING WRONG HERE
 						// this.props.history.push("./");
@@ -173,7 +176,7 @@ class Venue extends Component {
 							}
 							// What is this token?
 							const token = res.token;
-							console.log(token);
+							// console.log(token);
 							localStorage.setItem("addVenueToken", token);
 							// SOMETHING WRONG HERE
 							// this.props.history.push("./");
@@ -239,20 +242,115 @@ class Venue extends Component {
 		} else {
 			this.setState({ slots_booked: [...this.state.slots_booked, arr] });
 		}
+		var endTime = new Date();
+		endTime.setHours(21);
+		this.setState({eventEndTime: endTime});
 	};
 
-	checkAvailableStartSlot = (time, clockType) => {
-		// Do Some checking Here
+	checkBookedStartSlot = (time, clockType) => {
+		let slots_booked = this.state.slots_booked;
+		let date = this.state.eventDate.toLocaleDateString("en-GB");
+		//6 AM to 9PM SLOTS AVAILABLE
+		if(clockType ==='hours' && (time < 6 || time > 21)) {
+			return true;
+		}
+		if(clockType === 'minutes') {
+			var startHour = this.state.eventStartTime.getHours();
+			for(let i = 0; i < slots_booked.length; i++) {
+				console.log("SAME ? " + date + " : " + slots_booked[i].eventDate);
+				if(date !== slots_booked[i].eventDate) {
+					continue;
+				}
+				let slotStartHour = Number(slots_booked[i].eventStartTime.slice(0,2));
+				let slotEndHour = Number(slots_booked[i].eventEndTime.slice(0,2));
+				let slotStartMinutes = Number(slots_booked[i].eventStartTime.slice(3,5));
+				let slotEndMinutes = Number(slots_booked[i].eventEndTime.slice(3,5));
+				// TIME IN BETWEEN RANGE
+				// *{**[***}*
+				if(startHour > slotStartHour) {
+					if(startHour < slotEndHour) {
+						return true;
+					}
+					else if(startHour === slotEndHour && time < slotEndMinutes) {
+						return true;
+					}
+				}
+				if(startHour === slotStartHour) {
+					if(startHour === slotEndHour && time > slotStartMinutes && time < slotEndMinutes) {
+						return true;
+					}
+					else if(time === slotStartMinutes) {
+						return true;
+					}
+				}
+			}
+		}
 		return false;
 	}
 
-	checkAvailableEndSlot = (time, clockType) => {
-		// Do Some CHECKING HERE
-		return false
+	checkBookedEndSlot = (time, clockType) => {
+		let slots_booked = this.state.slots_booked;
+		let date = this.state.eventDate.toLocaleDateString("en-GB");
+		//6 AM to 9PM SLOTS AVAILABLE
+		if(clockType ==='hours' && (time < 6 || time > 21)) {
+			return true;
+		}
+		if(clockType === 'minutes') {
+			let startHour = this.state.eventStartTime.getHours();
+			let endHour = this.state.eventEndTime.getHours();
+			for(let i = 0; i < slots_booked.length; i++) {
+				if(date !== slots_booked[i].eventDate) {
+					continue;
+				}
+				let slotStartHour = Number(slots_booked[i].eventStartTime.slice(0,2));
+				let slotEndHour = Number(slots_booked[i].eventEndTime.slice(0,2));
+				let slotStartMinutes = Number(slots_booked[i].eventStartTime.slice(3,5));
+				let slotEndMinutes = Number(slots_booked[i].eventEndTime.slice(3,5));
+				// TIME IN BETWEEN RANGE
+				// *{**]***}*
+				if(endHour < slotEndHour) {
+					if(endHour > slotStartHour) {
+						return true;
+					}
+					else if(endHour === slotStartHour && time > slotStartMinutes) {
+						return true;
+					}
+				}
+				else if(endHour === slotEndHour) {
+					if(endHour === slotStartHour && time > slotStartMinutes && time < slotEndMinutes) {
+						return true;
+					}
+					else if(endHour > slotStartHour) {
+						return true;	
+					}
+				}
+				let fixedStartMinutes = this.state.eventStartTime.getMinutes();
+				// console.log("TIME : " + fixedStartMinutes);
+				// START AND END AT SAME TIME
+				// *****{}*****
+				if(startHour === endHour && fixedStartMinutes === time) {
+					return true;
+				}
+				// TIME OVERLAPPING RANGE
+				// ***[*{****}*]*
+				// ***{*[****]*}*
+				else if(startHour > slotStartHour || (startHour === slotStartHour && fixedStartMinutes > slotStartMinutes)) {
+					if((endHour < slotEndHour)||(endHour === slotEndHour && time < slotEndMinutes) || (endHour > slotEndHour)) {
+						return true;
+					}
+				}
+				else if(startHour < slotStartHour || (startHour === slotStartHour && fixedStartMinutes < slotStartMinutes)) {
+					if((endHour > slotStartHour)||(endHour === slotStartHour && time > slotStartMinutes)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 	deleteSlot = (event) => {
-		console.log(event.target.id);
+		// console.log(event.target.id);
 		var arr = this.state.slots_booked;
 		for (var i = 0; i < arr.length; i++) {
 			if (arr[i]["eventId"] === event.target.id) {
@@ -558,14 +656,17 @@ class Venue extends Component {
 									label="Start Time"
 									value={this.state.eventStartTime}
 									onChange={this.handleChangeStartTime}
-									shouldDisableTime={this.checkAvailableStartSlot}
+									shouldDisableTime={this.checkBookedStartSlot}
+									minutesStep={15}
 									renderInput={(params) => <TextField {...params} />}
 								/>
 								<TimePicker
 									label="End Time"
 									value={this.state.eventEndTime}
 									onChange={this.handleChangeEndTime}
-									shouldDisableTime={this.checkAvailableEndSlot}
+									minTime={this.state.eventStartTime}
+									shouldDisableTime={this.checkBookedEndSlot}
+									minutesStep={15}
 									renderInput={(params) => <TextField {...params} />}
 								/>
 							</Stack>
