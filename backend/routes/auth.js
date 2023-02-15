@@ -165,4 +165,18 @@ router.route("/get_user/:member_id").get(async (req, res) => {
   }
 });
 
+router.route("/get_members").get(async (req, res) => {
+  try {
+    console.log("Getting all members");
+    const member = await Member.distinct("member_id");
+    res.status(200).json({
+      result: member === null ? {} : member,
+    });
+  } catch (error) {
+    res.status(400).json({
+      result: "Failed to fetch members data !",
+    });
+  }
+});
+
 module.exports = router;

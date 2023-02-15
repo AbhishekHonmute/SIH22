@@ -5,11 +5,11 @@ import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 import Checkbox from "@mui/material/Checkbox";
-import Stack from '@mui/material/Stack';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import Stack from "@mui/material/Stack";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
+import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
@@ -17,9 +17,16 @@ import Container from "@mui/material/Container";
 import Alert from "@mui/material/Alert";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import axios from "axios";
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
-import Paper from '@mui/material/Paper';
-import DeleteIcon from '@mui/icons-material/Delete';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+} from "@mui/material";
+import Paper from "@mui/material/Paper";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const backendURL = "http://localhost:5000/api/venue";
 
@@ -38,7 +45,7 @@ class Venue extends Component {
       rating: "",
       address: "",
       slots_booked: [], //4 : Date : startTime EndTime EventID
-      
+
       ac: false,
       projector: false,
       internet: false,
@@ -46,7 +53,7 @@ class Venue extends Component {
       power_backup: false,
 
       iserror: false,
-      
+
       eventDate: new Date(),
       eventStartTime: new Date(),
       eventEndTime: new Date(),
@@ -54,11 +61,10 @@ class Venue extends Component {
   }
   componentDidMount = () => {
     const isUpdate = this.props.isUpdate;
-    if(isUpdate) {
+    if (isUpdate) {
       const venue_id = window.location.pathname.split("/")[2];
-      try{
-        axios.get(`${backendURL}/get_venue/${venue_id}`)
-        .then(res => {
+      try {
+        axios.get(`${backendURL}/get_venue/${venue_id}`).then((res) => {
           const data = res.data.result;
           this.setState({
             venue_id: data.venue_id,
@@ -76,18 +82,17 @@ class Venue extends Component {
             slots_booked: data.slots_booked,
           });
         });
-      }
-      catch (error) {
+      } catch (error) {
         console.log("COMPONENT UPDATE ERROR" + error);
-        this.setState({iserror: true});
+        this.setState({ iserror: true });
       }
     }
-  }
+  };
 
   validateForm = () => {
     console.log("Validating");
-    this.setState({iserror: false})
-  }
+    this.setState({ iserror: false });
+  };
 
   handleSubmit = async (event) => {
     this.validateForm();
@@ -123,43 +128,43 @@ class Venue extends Component {
     //   email: data.email,
     //   address: data.address,
     // });
-    if(isUpdate && this.state.iserror === false) {
-      try{
+    if (isUpdate && this.state.iserror === false) {
+      try {
         const response = await axios.post(`${backendURL}/update_venue`, data);
         const token = response.data.result.token;
         localStorage.setItem("expeditetoken", token);
         // CHECK HISTORY AND THEN ADD
         // this.props.history.push("./");
-      }
-      catch (error) {
+      } catch (error) {
         console.log("UPDATE VENUE ERROR" + error);
-        this.setState({iserror: true});
+        this.setState({ iserror: true });
       }
-    }
-    else {
-      if(this.state.iserror === false) {
-        try{
+    } else {
+      if (this.state.iserror === false) {
+        try {
           const response = await axios.post(`${backendURL}/add_venue`, data);
           const token = response.data.result.token;
           localStorage.setItem("expeditetoken", token);
           // CHECK HISTORY THEN ADD
           // this.props.history.push("./");
-        }
-        catch (error) {
+        } catch (error) {
           console.log("ADD VENUE ERROR" + error);
-          this.setState({iserror: true});
+          this.setState({ iserror: true });
         }
       }
     }
   };
 
   handleChange = (event) => {
-    if(event.target.name === "rent" || event.target.name === "capacity" || event.target.name === "slots") {
+    if (
+      event.target.name === "rent" ||
+      event.target.name === "capacity" ||
+      event.target.name === "slots"
+    ) {
       this.setState({
-        [event.target.name]: event.target.value.replace(/\D/,''),
+        [event.target.name]: event.target.value.replace(/\D/, ""),
       });
-    }
-    else {
+    } else {
       this.setState({
         [event.target.name]: event.target.value,
       });
@@ -167,14 +172,14 @@ class Venue extends Component {
   };
 
   handleChangeDate = (newvalue) => {
-    this.setState({eventDate: newvalue});
-  }
+    this.setState({ eventDate: newvalue });
+  };
   handleChangeStartTime = (newvalue) => {
-    this.setState({eventStartTime: newvalue});
-  }
+    this.setState({ eventStartTime: newvalue });
+  };
   handleChangeEndTime = (newvalue) => {
-    this.setState({eventEndTime: newvalue});
-  }
+    this.setState({ eventEndTime: newvalue });
+  };
   handleToggle = (event) => {
     this.setState({
       [event.target.name]: event.target.checked,
@@ -183,30 +188,29 @@ class Venue extends Component {
 
   addSlot = () => {
     const arr = [];
-    arr.push(this.state.eventDate.toLocaleDateString())
-    arr.push(this.state.eventStartTime.toLocaleTimeString())
-    arr.push(this.state.eventEndTime.toLocaleTimeString())
+    arr.push(this.state.eventDate.toLocaleDateString());
+    arr.push(this.state.eventStartTime.toLocaleTimeString());
+    arr.push(this.state.eventEndTime.toLocaleTimeString());
     // SOMEHOW GET THIS EVENT ID... SHOULD BE UNIQUE
-    arr.push("EVENTID")
-    if(this.state.slots_booked.length == null) {
-      this.setState({slots_booked: [arr,]});
+    arr.push("EVENTID");
+    if (this.state.slots_booked.length == null) {
+      this.setState({ slots_booked: [arr] });
+    } else {
+      this.setState({ slots_booked: [...this.state.slots_booked, [...arr]] });
     }
-    else {
-      this.setState({slots_booked: [...this.state.slots_booked, [...arr]]});
-    }
-  }
+  };
 
   deleteSlot = (event) => {
     console.log(event.target.id);
     var arr = this.state.slots_booked;
-    for(var i = 0; i < arr.length; i++) {
-      if(arr[i][3] === event.target.id) {
+    for (var i = 0; i < arr.length; i++) {
+      if (arr[i][3] === event.target.id) {
         arr.splice(i, 1);
         break;
       }
     }
-    this.setState({slots_booked: arr});
-  }
+    this.setState({ slots_booked: arr });
+  };
 
   render() {
     const isUpdate = this.props.isUpdate;
@@ -233,18 +237,14 @@ class Venue extends Component {
             {!isUpdate && this.state.iserror && (
               <Alert severity="error">Check The Details Entered</Alert>
             )}
-            <Box
-              component="form"
-              onSubmit={this.handleSubmit}
-              sx={{ mt: 1 }}
-            >
+            <Box component="form" onSubmit={this.handleSubmit} sx={{ mt: 1 }}>
               <TextField
                 margin="normal"
                 required
                 fullWidth
-                inputProps={{ 
+                inputProps={{
                   minLength: 1,
-                  maxLength: 16
+                  maxLength: 16,
                 }}
                 id="venue_id"
                 label="Venue ID"
@@ -258,9 +258,9 @@ class Venue extends Component {
                 margin="normal"
                 required
                 fullWidth
-                inputProps={{ 
+                inputProps={{
                   minLength: 1,
-                  maxLength: 16
+                  maxLength: 16,
                 }}
                 id="name"
                 label="Venue Name"
@@ -297,9 +297,9 @@ class Venue extends Component {
                 margin="normal"
                 required
                 fullWidth
-                inputProps={{ 
+                inputProps={{
                   minLength: 1,
-                  maxLength: 32
+                  maxLength: 32,
                 }}
                 id="address"
                 label="Venue Address"
@@ -321,24 +321,24 @@ class Venue extends Component {
                 onChange={this.handleChange}
               />
               {/* Currently Cant Update Password */}
-              {!isUpdate &&
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                inputProps={{ 
-                  minLength: 8,
-                  maxLength: 15
-                }}
-                name="password"
-                label="Password"
-                type="password"
-                id="password"
-                autoComplete="current-password"
-                value={this.state.password}
-                onChange={this.handleChange}
-              /> 
-              }
+              {!isUpdate && (
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  inputProps={{
+                    minLength: 8,
+                    maxLength: 15,
+                  }}
+                  name="password"
+                  label="Password"
+                  type="password"
+                  id="password"
+                  autoComplete="current-password"
+                  value={this.state.password}
+                  onChange={this.handleChange}
+                />
+              )}
               <FormControlLabel
                 label="Venue Has AC"
                 labelPlacement="start"
@@ -416,74 +416,75 @@ class Venue extends Component {
           </Box>
           <Container>
             <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <TableContainer component={Paper} sx={{ marginBottom:8 }}>
-              <Table sx={{ minWidth: 700 }} aria-label="customized table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>EVENT ID</TableCell>
-                    <TableCell align="right">DATE</TableCell>
-                    <TableCell align="right">START TIME</TableCell>
-                    <TableCell align="right">END TIME</TableCell>
-                    <TableCell align="right">DELETE</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {this.state.slots_booked && this.state.slots_booked.map((slot) => (
-                    <TableRow key={slot[3]}>
-                      <TableCell component="th" scope="slot">
-                        {slot[3]}
-                      </TableCell>
-                      <TableCell align="right">{slot[0]}</TableCell>
-                      <TableCell align="right">{slot[1]}</TableCell>
-                      <TableCell align="right">{slot[2]}</TableCell>
-                      <TableCell align="right"> 
-                        <Button
-                          type="button"
-                          variant="contained"
-                          color="error"
-                          id={slot[3]}
-                          endIcon={<DeleteIcon />}
-                          onClick={this.deleteSlot}
-                          sx={{mt: 2, mb: 2}}
-                        >
-                          Delete
-                        </Button>
-                      </TableCell>
+              <TableContainer component={Paper} sx={{ marginBottom: 8 }}>
+                <Table sx={{ minWidth: 700 }} aria-label="customized table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>EVENT ID</TableCell>
+                      <TableCell align="right">DATE</TableCell>
+                      <TableCell align="right">START TIME</TableCell>
+                      <TableCell align="right">END TIME</TableCell>
+                      <TableCell align="right">DELETE</TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-            <Stack spacing={3}>
-              <DesktopDatePicker
-                label="Select Date To Book Slot"
-                inputFormat="dd/MM/yyyy"
-                value={this.state.eventDate}
-                onChange={this.handleChangeDate}
-                renderInput={(params) => <TextField {...params} />}
-              />
-              <TimePicker
-                label="Start Time"
-                value={this.state.eventStartTime}
-                onChange={this.handleChangeStartTime}
-                renderInput={(params) => <TextField {...params} />}
-              />
-              <TimePicker
-                label="End Time"
-                value={this.state.eventEndTime}
-                onChange={this.handleChangeEndTime}
-                renderInput={(params) => <TextField {...params} />}
-              />
-            </Stack>
-            <Button
-              type="button"
-              fullWidth
-              variant="outlined"
-              onClick={this.addSlot}
-              sx={{mt: 3, mb: 2}}
-            >
-              Add Slot
-            </Button>
+                  </TableHead>
+                  <TableBody>
+                    {this.state.slots_booked &&
+                      this.state.slots_booked.map((slot) => (
+                        <TableRow key={slot[3]}>
+                          <TableCell component="th" scope="slot">
+                            {slot[3]}
+                          </TableCell>
+                          <TableCell align="right">{slot[0]}</TableCell>
+                          <TableCell align="right">{slot[1]}</TableCell>
+                          <TableCell align="right">{slot[2]}</TableCell>
+                          <TableCell align="right">
+                            <Button
+                              type="button"
+                              variant="contained"
+                              color="error"
+                              id={slot[3]}
+                              endIcon={<DeleteIcon />}
+                              onClick={this.deleteSlot}
+                              sx={{ mt: 2, mb: 2 }}
+                            >
+                              Delete
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <Stack spacing={3}>
+                <DesktopDatePicker
+                  label="Select Date To Book Slot"
+                  inputFormat="dd/MM/yyyy"
+                  value={this.state.eventDate}
+                  onChange={this.handleChangeDate}
+                  renderInput={(params) => <TextField {...params} />}
+                />
+                <TimePicker
+                  label="Start Time"
+                  value={this.state.eventStartTime}
+                  onChange={this.handleChangeStartTime}
+                  renderInput={(params) => <TextField {...params} />}
+                />
+                <TimePicker
+                  label="End Time"
+                  value={this.state.eventEndTime}
+                  onChange={this.handleChangeEndTime}
+                  renderInput={(params) => <TextField {...params} />}
+                />
+              </Stack>
+              <Button
+                type="button"
+                fullWidth
+                variant="outlined"
+                onClick={this.addSlot}
+                sx={{ mt: 3, mb: 2 }}
+              >
+                Add Slot
+              </Button>
             </LocalizationProvider>
           </Container>
         </Container>

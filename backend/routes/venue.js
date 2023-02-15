@@ -46,7 +46,7 @@ router.route("/add_venue").post(async (req, res) => {
         result: "Venue ID already exists. Enter a different Venue ID",
       });
     } else {
-        returnHashedPassowrd(password)
+      returnHashedPassowrd(password)
         .then((hashedPassword) => {
           const new_venue = new Venue({
             venue_id,
@@ -72,8 +72,7 @@ router.route("/add_venue").post(async (req, res) => {
         result: "Venue Registered",
       });
     }
-  }
-  catch (error) {
+  } catch (error) {
     res.status(400).json({
       result: "Cannot Register Venue",
     });
@@ -169,6 +168,35 @@ router.route("/get_venue/:venue_id").get(async (req, res) => {
     const venue_id = req.params.venue_id;
     console.log(venue_id);
     const venue = await Venue.findOne({ venue_id });
+    res.status(200).json({
+      result: venue === null ? {} : venue,
+    });
+  } catch (error) {
+    res.status(400).json({
+      result: "Failed to fetch venue data !",
+    });
+  }
+});
+
+router.route("/get_venue_ids/:filters").get(async (req, res) => {
+  try {
+    console.log("Getting all venue ids with filters");
+    const filters = req.params.filters;
+    var venue = "";
+    console.log(filters);
+    var filters_arr = filters.split(";");
+    console.log(filters_arr);
+    filters_arr.splice(-1);
+    if (filters_arr.includes("null")) {
+      venue = await Venue.distinct("venue_id");
+    } else {
+      var query = {};
+      for (const filter of filters_arr) {
+        query[filter] = true;
+      }
+      venue = await Venue.distinct("venue_id", query);
+    }
+    console.log(venue);
     res.status(200).json({
       result: venue === null ? {} : venue,
     });
