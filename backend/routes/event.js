@@ -11,7 +11,6 @@ router.route("/add_event").post(async (req, res) => {
       event_creator_id,
       description,
       approval,
-      event_date,
       start_time,
       end_time,
       expected_attendance,
@@ -33,7 +32,6 @@ router.route("/add_event").post(async (req, res) => {
       event_creator_id,
       description,
       approval,
-      event_date,
       start_time,
       end_time,
       expected_attendance,
@@ -48,15 +46,13 @@ router.route("/add_event").post(async (req, res) => {
       members_list,
       spendings
     );
-    console.log("HOW");
+
     const event = await Event.findOne({ event_id });
-    console.log(event);
     if (event) {
       res.status(403).json({
         result: "Event ID already exists. Enter a different Event ID",
       });
     } else {
-      console.log("IN ELSE");
       try {
         const new_event = new Event({
           event_id,
@@ -64,7 +60,6 @@ router.route("/add_event").post(async (req, res) => {
           event_creator_id,
           description,
           approval,
-          event_date,
           start_time,
           end_time,
           expected_attendance,
@@ -81,9 +76,7 @@ router.route("/add_event").post(async (req, res) => {
         });
         console.log(new_event);
         new_event.save();
-        console.log("IN LSE");
       } catch (error) {
-        console.log(" ELSE");
         console.log(error.message);
       }
       res.status(200).json({
@@ -105,7 +98,6 @@ router.route("/update_event").post(async (req, res) => {
       event_creator_id,
       description,
       approval,
-      event_date,
       start_time,
       end_time,
       expected_attendance,
@@ -126,7 +118,6 @@ router.route("/update_event").post(async (req, res) => {
       event_creator_id,
       description,
       approval,
-      event_date,
       start_time,
       end_time,
       expected_attendance,
@@ -149,7 +140,6 @@ router.route("/update_event").post(async (req, res) => {
       event_creator_id,
       description,
       approval,
-      event_date,
       start_time,
       end_time,
       expected_attendance,
@@ -179,23 +169,23 @@ router.route("/update_event").post(async (req, res) => {
 });
 
 router.route("/delete_event/:event_id").delete(async (req, res) => {
-  try {
-    const event_id = req.params.event_id;
-    console.log(event_id);
-    await Event.deleteOne({ event_id });
-    await Order.deleteMany({ event_id });
-    const old_query = {};
-    const new_query = { $pull: { slots_booked: { event_id: event_id } } };
-    await Venue.updateMany(old_query, new_query);
-    console.log("No error here bro");
-    res.status(200).json({
-      result: "Venue deleted",
-    });
-  } catch (error) {
-    res.status(400).json({
-      result: "Failed to delete event",
-    });
-  }
+	try {
+		const event_id = req.params.event_id;
+		console.log(event_id);
+		await Event.deleteOne({ event_id });
+		await Order.deleteMany({ event_id });
+		const old_query = {};
+		const new_query = { $pull: { slots_booked: { event_id: event_id } } };
+		await Venue.updateMany(old_query, new_query);
+		console.log("No error here bro");
+		res.status(200).json({
+			result: "Venue deleted",
+		});
+	} catch (error) {
+		res.status(400).json({
+			result: "Failed to delete event",
+		});
+	}
 });
 
 router.route("/add_event_slot").post(async (req, res) => {
@@ -291,18 +281,18 @@ router.route("/add_event_slot").post(async (req, res) => {
 });
 
 router.route("/get_event/:event_id").get(async (req, res) => {
-  try {
-    const event_id = req.params.event_id;
-    console.log(event_id);
-    const event = await Event.findOne({ event_id });
-    res.status(200).json({
-      result: event === null ? {} : event,
-    });
-  } catch (error) {
-    res.status(400).json({
-      result: "Failed to fetch event data !",
-    });
-  }
+	try {
+		const event_id = req.params.event_id;
+		console.log(event_id);
+		const event = await Event.findOne({ event_id });
+		res.status(200).json({
+			result: event === null ? {} : event,
+		});
+	} catch (error) {
+		res.status(400).json({
+			result: "Failed to fetch event data !",
+		});
+	}
 });
 
 module.exports = router;

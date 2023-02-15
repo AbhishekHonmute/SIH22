@@ -1,3 +1,3 @@
 {
-  "mongoURI": "mongodb+srv://root:1234@expeditecluster.vj3jd.mongodb.net/?retryWrites=true&w=majority"
+  "mongoURI": "mongodb://root:1234@expeditecluster-shard-00-00.vj3jd.mongodb.net:27017,expeditecluster-shard-00-01.vj3jd.mongodb.net:27017,expeditecluster-shard-00-02.vj3jd.mongodb.net:27017/?ssl=true&replicaSet=atlas-kdgq1q-shard-0&authSource=admin&retryWrites=true&w=majority"
 }

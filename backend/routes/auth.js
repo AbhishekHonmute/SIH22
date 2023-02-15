@@ -1,8 +1,104 @@
 const router = require("express").Router();
+const Admin = require("../models/admin");
 const Member = require("../models/Member");
+const Venue = require("../models/Venue");
+const Canteen = require("../models/Canteen");
 const Committee = require("../models/Committee");
 const Event = require("../models/Event");
 const { compareHashedPassword, returnHashedPassowrd } = require("../util");
+
+router.route("/login").post(async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await Admin.findOne({ email });
+    if (user) {
+      const parsedUser = JSON.parse(JSON.stringify(user));
+      compareHashedPassword(password, parsedUser.password).then((result) => {
+        if (result) {
+          const token = "expeditetoken";
+          const usertype = "Admin";
+          console.log("Login Successful");
+          res.status(200).json({
+            result: { user: parsedUser, token, usertype },
+          });
+        } else {
+          res.status(400).json({
+            result: "Wrong password",
+          });
+        }
+      });
+    } else {
+      const user = await Member.findOne({ email });
+      if (user) {
+        const parsedUser = JSON.parse(JSON.stringify(user));
+        compareHashedPassword(password, parsedUser.password).then((result) => {
+          if (result) {
+            const token = "expeditetoken";
+            const usertype = "Member";
+            console.log("Login Successful");
+            res.status(200).json({
+              result: { user: parsedUser, token, usertype },
+            });
+          } else {
+            res.status(400).json({
+              result: "Wrong password",
+            });
+          }
+        });
+      } else {
+        const user = await Venue.findOne({ email });
+        if (user) {
+          const parsedUser = JSON.parse(JSON.stringify(user));
+          compareHashedPassword(password, parsedUser.password).then(
+            (result) => {
+              if (result) {
+                const token = "expeditetoken";
+                const usertype = "Venue";
+                console.log("Login Successful");
+                res.status(200).json({
+                  result: { user: parsedUser, token, usertype },
+                });
+              } else {
+                res.status(400).json({
+                  result: "Wrong password",
+                });
+              }
+            }
+          );
+        } else {
+          const user = await Canteen.findOne({ email });
+          if (user) {
+            const parsedUser = JSON.parse(JSON.stringify(user));
+            compareHashedPassword(password, parsedUser.password).then(
+              (result) => {
+                if (result) {
+                  const token = "expeditetoken";
+                  const usertype = "Canteen";
+                  console.log("Login Successful");
+                  res.status(200).json({
+                    result: { user: parsedUser, token, usertype },
+                  });
+                } else {
+                  res.status(400).json({
+                    result: "Wrong password",
+                  });
+                }
+              }
+            );
+          } else {
+            res.status(400).json({
+              result: "Email not found",
+            });
+          }
+        }
+      }
+    }
+  } catch {
+    res.status(400).json({
+      result: "Login Failed",
+    });
+  }
+});
 
 router.route("/signup").post(async (req, res) => {
   try {
